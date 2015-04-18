@@ -1,0 +1,4 @@
+services:
+#    bukatov_api_token.example:
+#        class: Bukatov\ApiTokenBundle\Example
+#        arguments: [@service_id, "plain_value", %parameter%]

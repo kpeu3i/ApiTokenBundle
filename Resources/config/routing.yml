@@ -1,0 +1,3 @@
+bukatov_api_token_homepage:
+    path:     /hello/{name}
+    defaults: { _controller: BukatovApiTokenBundle:Default:index }
