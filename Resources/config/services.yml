@@ -1,4 +1,43 @@
+parameters:
+    api_token.doctrine.orm.security.provider.class: Bukatov\ApiTokenBundle\Security\User\EntityApiTokenUserProvider
+    api_token.security.authentication.provider.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\ApiTokenProvider
+    api_token.security.authentication.listener.class: Bukatov\ApiTokenBundle\Security\Firewall\ApiTokenListener
+    get_api_token.security.authentication.listener.class: Bukatov\ApiTokenBundle\Security\Firewall\GetApiTokenListener
+
+    api_token.fetcher.headers.class: Bukatov\ApiTokenBundle\ParameterFetcher\HeadersParameterFetcher
+    api_token.fetcher.query_string.class: Bukatov\ApiTokenBundle\ParameterFetcher\QueryStringParameterFetcher
+    api_token.fetcher.post_body.class: Bukatov\ApiTokenBundle\ParameterFetcher\PostBodyParameterFetcher
+    api_token.fetcher.json_post_body.class: Bukatov\ApiTokenBundle\ParameterFetcher\JsonPostBodyParameterFetcher
+
 services:
-#    bukatov_api_token.example:
-#        class: Bukatov\ApiTokenBundle\Example
-#        arguments: [@service_id, "plain_value", %parameter%]
+    api_token.doctrine.orm.security.provider:
+        class: %api_token.doctrine.orm.security.provider.class%
+        arguments: ["@doctrine"]
+
+    api_token.security.authentication.provider:
+        class: %api_token.security.authentication.provider.class%
+        arguments: ["", "", ""]
+
+    api_token.security.authentication.listener:
+        class: %api_token.security.authentication.listener.class%
+        arguments: ["@security.token_storage", "@security.authentication.manager", "", ""]
+
+    get_api_token.security.authentication.listener:
+        class: %get_api_token.security.authentication.listener.class%
+        arguments: ["@security.token_storage", "@security.authentication.manager", "", "", "", ""]
+
+    api_token.fetcher.headers:
+        class: %api_token.fetcher.headers.class%
+        public: false
+
+    api_token.fetcher.query_string:
+        class: %api_token.fetcher.query_string.class%
+        public: false
+
+    api_token.fetcher.post_body:
+        class: %api_token.fetcher.post_body.class%
+        public: false
+
+    api_token.fetcher.json_post_body:
+        class: %api_token.fetcher.json_post_body.class%
+        public: false

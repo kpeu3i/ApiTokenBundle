@@ -1,3 +1,8 @@
-bukatov_api_token_homepage:
-    path:     /hello/{name}
-    defaults: { _controller: BukatovApiTokenBundle:Default:index }
+bukatov_api_token_get:
+    pattern:      /api_token/get
+    defaults:     { _controller: "BukatovApiTokenBundle:ApiToken:getApiToken" }
+
+bukatov_api_token_invalidate:
+    pattern:      /api_token/invalidate
+    defaults:     { _controller: "BukatovApiTokenBundle:ApiToken:invalidateApiToken" }
+    requirements: { _method: POST }
