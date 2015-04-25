@@ -1,20 +1,28 @@
 {
-    "name": "bukatov/apitokenbundle",
-    "description": "Creates an avenue for using api token authentication for Symfony2.",
-    "license": "MIT",
+    "name": "bukatov/api-token-bundle",
+    "description": "Integrates token authentication mechanism into Symfony2",
+    "type" : "symfony-bundle",
+    "license" : [
+        "MIT"
+    ],
     "require": {
         "php": ">=5.3.0",
         "symfony/symfony": ">=2.3.0"
     },
     "autoload": {
-        "psr-0": {
-            "Bukatov\\ApiTokenBundle": "src/"
-        }
+        "psr-4": { "Bukatov\\ApiTokenBundle": "" }
     },
     "authors": [
         {
             "name": "Andrey Bukatov",
             "email": "andrey.bukatov@gmail.com"
         }
-    ]
+    ],
+    "require": {},
+    "target-dir" : "bukatov/api-token-bundle",
+    "extra" : {
+        "branch-alias" : {
+            "dev-master" : "0.0.1-dev"
+        }
+    }
 }
