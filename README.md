@@ -33,6 +33,16 @@ public function registerBundles()
 bukatov_api_token: ~
 ```
 
+#### Routing
+
+To use the refresh (login) and invalidate (logout) functionality, add the routing file to you application:
+
+```yaml
+bukatov_api_token:
+    resource: "@BukatovApiTokenBundle/Resources/config/routing.yml"
+    prefix:   /
+```
+
 #### Entities
 
 TODO
