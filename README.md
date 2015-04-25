@@ -27,9 +27,21 @@ public function registerBundles()
     );
 }
 ```
+
 #### Configuration
 
 ```yaml
+# app/config/config.yml
+
+doctrine:
+    # ....
+    orm:
+        # ...
+        resolve_target_entities:
+            Bukatov\ApiTokenBundle\Entity\ApiUserInterface: Company\YourBundle\Entity\User
+
+# ...
+
 bukatov_api_token: ~
 ```
 
@@ -47,8 +59,7 @@ bukatov_api_token:
 
 User entity:
 
-````php
-
+```php
 <?php
 
 // Company\YourBundle\Entity\User.php
@@ -68,13 +79,11 @@ class User extends MyBaseEntity implements ApiUserInterface
     
     // ...
 }
-
-````
+```
 
 User repository:
 
-````php
-
+```php
 <?php
 
 // Company\YourBundle\Entity\UserRepository.php
@@ -90,12 +99,11 @@ class UserRepository extends MyBaseEntityRepository implements ApiUserRepository
     
     // ...
 }
-
-````
+```
 
 #### Set up security
 
-In your security.yml:
+In your app/config/security.yml:
 
 ```yml
 security:
