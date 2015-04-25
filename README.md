@@ -35,7 +35,7 @@ bukatov_api_token: ~
 
 #### Routing
 
-To use the refresh (login) and invalidate (logout) functionality, add the routing file to you application:
+To use the get (login) and invalidate (logout) functionality, import the routing file to you application:
 
 ```yaml
 bukatov_api_token:
@@ -45,7 +45,53 @@ bukatov_api_token:
 
 #### Entities
 
-TODO
+User entity:
+
+````php
+
+<?php
+
+// Company\YourBundle\Entity\User.php
+
+namespace Company\YourBundle\Entity;
+
+use Bukatov\ApiTokenBundle\Entity\ApiUserInterface;
+use Bukatov\ApiTokenBundle\Entity\ApiUserTrait;
+
+/**
+ * @ORM\Table
+ * @ORM\Entity(repositoryClass="Company\YourBundle\Entity\UserRepository")
+ */
+class User extends MyBaseEntity implements ApiUserInterface
+{
+    use ApiUserTrait;
+    
+    // ...
+}
+
+````
+
+User repository:
+
+````php
+
+<?php
+
+// Company\YourBundle\Entity\UserRepository.php
+
+namespace Company\YourBundle\Entity;
+
+use Bukatov\ApiTokenBundle\Entity\ApiUserRepositoryInterface;
+use Bukatov\ApiTokenBundle\Entity\ApiUserRepositoryTrait;
+
+class UserRepository extends MyBaseEntityRepository implements ApiUserRepositoryInterface
+{
+    use ApiUserRepositoryTrait;
+    
+    // ...
+}
+
+````
 
 #### Set up security
 
