@@ -10,7 +10,7 @@
         "symfony/symfony": ">=2.3.0"
     },
     "autoload": {
-        "psr-4": { "Bukatov\\ApiTokenBundle": "" }
+        "psr-4": { "Bukatov\\ApiTokenBundle\\": "" }
     },
     "authors": [
         {
