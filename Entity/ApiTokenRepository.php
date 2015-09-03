@@ -13,6 +13,7 @@ class ApiTokenRepository extends EntityRepository
         if (!$apiToken instanceof ApiToken) {
             $apiToken = new ApiToken();
             $apiToken->setUser($user);
+            $user->setApiToken($apiToken);
         }
 
         $apiToken->refresh();
