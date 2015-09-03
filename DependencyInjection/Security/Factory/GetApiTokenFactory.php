@@ -18,21 +18,21 @@ class GetApiTokenFactory implements SecurityFactoryInterface
         $transportUsernameParameter = isset($config['transport']['username_parameter']) ? $config['transport']['username_parameter'] : '%bukatov_api_token.transport.on_login_area.username_parameter%';
         $transportPasswordParameter = isset($config['transport']['password_parameter']) ? $config['transport']['password_parameter'] : '%bukatov_api_token.transport.on_login_area.password_parameter%';
 
-        $providerId = 'security.authentication.provider.get_api_token.' . $id;
+        $providerId = 'bukatov_api_token.security.authentication.get.provider.' . $id;
         $container
-            ->setDefinition($providerId, new DefinitionDecorator('api_token.security.authentication.get_token.provider'))
+            ->setDefinition($providerId, new DefinitionDecorator('bukatov_api_token.security.authentication.get.provider'))
             ->replaceArgument(0, new Reference($userProvider))
             ->replaceArgument(2, $id)
             ->addMethodCall('setLifetime', [$tokenLifetime])
             ->addMethodCall('setIdleTime', [$tokenIdleTime]);
 
-        $resolvedParameterFetcherId = 'api_token.fetcher' . $id;
+        $resolvedParameterFetcherId = 'bukatov_api_token.fetcher' . $id;
         $container
-            ->setDefinition($resolvedParameterFetcherId, new DefinitionDecorator('api_token.fetcher.' . $config['transport']['type']));
+            ->setDefinition($resolvedParameterFetcherId, new DefinitionDecorator('bukatov_api_token.fetcher.' . $config['transport']['type']));
 
-        $listenerId = 'security.authentication.listener.get_api_token.' . $id;
+        $listenerId = 'bukatov_api_token.security.authentication.get.listener.' . $id;
         $container
-            ->setDefinition($listenerId, new DefinitionDecorator('get_api_token.security.authentication.listener'))
+            ->setDefinition($listenerId, new DefinitionDecorator('bukatov_api_token.security.authentication.get.listener'))
             ->replaceArgument(2, $id)
             ->replaceArgument(3, new Reference($resolvedParameterFetcherId))
             ->replaceArgument(4, $transportUsernameParameter)
@@ -80,6 +80,6 @@ class GetApiTokenFactory implements SecurityFactoryInterface
 
     public function getKey()
     {
-        return 'get_api_token';
+        return 'api_token_login_area';
     }
 }

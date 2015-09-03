@@ -2,7 +2,7 @@
 
 namespace Bukatov\ApiTokenBundle\Controller;
 
-use Bukatov\ApiTokenBundle\Security\User\ApiTokenUserProviderInterface;
+use Bukatov\ApiTokenBundle\Entity\ApiUserInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -10,7 +10,7 @@ class ApiTokenController extends Controller
 {
     public function getApiTokenAction()
     {
-        $token = $this->getUser() instanceof ApiTokenUserProviderInterface ? (string)$this->getUser()->getApiToken() : '';
+        $token = $this->getUser() instanceof ApiUserInterface ? (string)$this->getUser()->getApiToken() : '';
 
         return new Response($token);
     }

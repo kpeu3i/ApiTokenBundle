@@ -22,8 +22,8 @@ class ApiUserEntityFactory implements UserProviderFactoryInterface
     {
         $container
             ->setDefinition($id, new DefinitionDecorator($this->providerId))
-            ->addArgument($config['class'])
-            ->addArgument($config['manager_name']);
+            ->replaceArgument(1, $config['class'])
+            ->replaceArgument(2, $config['manager_name']);
     }
 
     public function addConfiguration(NodeDefinition $node)

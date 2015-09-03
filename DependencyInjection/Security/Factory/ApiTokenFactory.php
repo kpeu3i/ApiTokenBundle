@@ -14,18 +14,18 @@ class ApiTokenFactory implements SecurityFactoryInterface
     {
         $transportParameter = isset($config['transport']['parameter']) ? $config['transport']['parameter'] : '%bukatov_api_token.transport.on_secure_area.parameter%';
 
-        $providerId = 'security.authentication.provider.api_token.' . $id;
+        $providerId = 'bukatov_api_token.security.authentication.token.provider.' . $id;
         $container
-            ->setDefinition($providerId, new DefinitionDecorator('api_token.security.authentication.token.provider'))
+            ->setDefinition($providerId, new DefinitionDecorator('bukatov_api_token.security.authentication.token.provider'))
             ->replaceArgument(0, new Reference($userProvider));
 
-        $resolvedParameterFetcherId = 'api_token.fetcher.' . $id;
+        $resolvedParameterFetcherId = 'bukatov_api_token.fetcher.' . $id;
         $container
-            ->setDefinition($resolvedParameterFetcherId, new DefinitionDecorator('api_token.fetcher.' . $config['transport']['type']));
+            ->setDefinition($resolvedParameterFetcherId, new DefinitionDecorator('bukatov_api_token.fetcher.' . $config['transport']['type']));
 
-        $listenerId = 'security.authentication.listener.api_token.' . $id;
+        $listenerId = 'security.authentication.listener.bukatov_api_token.' . $id;
         $container
-            ->setDefinition($listenerId, new DefinitionDecorator('api_token.security.authentication.listener'))
+            ->setDefinition($listenerId, new DefinitionDecorator('bukatov_api_token.security.authentication.listener'))
             ->replaceArgument(2, new Reference($resolvedParameterFetcherId))
             ->replaceArgument(3, $transportParameter);
 
@@ -62,6 +62,6 @@ class ApiTokenFactory implements SecurityFactoryInterface
 
     public function getKey()
     {
-        return 'api_token';
+        return 'api_token_secure_area';
     }
 }

@@ -1,50 +1,50 @@
 parameters:
-    api_token.doctrine.orm.security.provider.class: Bukatov\ApiTokenBundle\Security\User\EntityApiTokenUserProvider
-    api_token.security.authentication.token.provider.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\ApiTokenProvider
-    api_token.security.authentication.listener.class: Bukatov\ApiTokenBundle\Security\Firewall\ApiTokenListener
+    bukatov_api_token.security.authentication.get.listener.class: Bukatov\ApiTokenBundle\Security\Firewall\GetApiTokenListener
+    bukatov_api_token.security.authentication.get.provider.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\GetApiTokenProvider
 
-    api_token.security.authentication.get_token.provider.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\GetApiTokenProvider
+    bukatov_api_token.security.authentication.listener.class: Bukatov\ApiTokenBundle\Security\Firewall\ApiTokenListener
+    bukatov_api_token.doctrine.orm.security.provider.class: Bukatov\ApiTokenBundle\Security\User\EntityApiTokenUserProvider
 
-    get_api_token.security.authentication.listener.class: Bukatov\ApiTokenBundle\Security\Firewall\GetApiTokenListener
+    bukatov_api_token.security.authentication.token.provider.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\ApiTokenProvider
 
-    api_token.fetcher.headers.class: Bukatov\ApiTokenBundle\ParameterFetcher\HeadersParameterFetcher
-    api_token.fetcher.query_string.class: Bukatov\ApiTokenBundle\ParameterFetcher\QueryStringParameterFetcher
-    api_token.fetcher.post_body.class: Bukatov\ApiTokenBundle\ParameterFetcher\PostBodyParameterFetcher
-    api_token.fetcher.json_post_body.class: Bukatov\ApiTokenBundle\ParameterFetcher\JsonPostBodyParameterFetcher
+    bukatov_api_token.fetcher.headers.class: Bukatov\ApiTokenBundle\ParameterFetcher\HeadersParameterFetcher
+    bukatov_api_token.fetcher.query_string.class: Bukatov\ApiTokenBundle\ParameterFetcher\QueryStringParameterFetcher
+    bukatov_api_token.fetcher.post_body.class: Bukatov\ApiTokenBundle\ParameterFetcher\PostBodyParameterFetcher
+    bukatov_api_token.fetcher.json_post_body.class: Bukatov\ApiTokenBundle\ParameterFetcher\JsonPostBodyParameterFetcher
 
 services:
-    api_token.doctrine.orm.security.provider:
-        class: %api_token.doctrine.orm.security.provider.class%
-        arguments: ["@doctrine"]
-
-    api_token.security.authentication.token.provider:
-        class: %api_token.security.authentication.token.provider.class%
-        arguments: [""]
-
-    api_token.security.authentication.get_token.provider:
-        class: %api_token.security.authentication.get_token.provider.class%
-        arguments: ["", @security.user_checker, "", @security.encoder_factory, %security.authentication.hide_user_not_found%]
-
-    api_token.security.authentication.listener:
-        class: %api_token.security.authentication.listener.class%
-        arguments: ["@security.token_storage", "@security.authentication.manager", "", ""]
-
-    get_api_token.security.authentication.listener:
-        class: %get_api_token.security.authentication.listener.class%
+    bukatov_api_token.security.authentication.get.listener:
+        class: %bukatov_api_token.security.authentication.get.listener.class%
         arguments: ["@security.token_storage", "@security.authentication.manager", "", "", "", ""]
 
-    api_token.fetcher.headers:
-        class: %api_token.fetcher.headers.class%
+    bukatov_api_token.security.authentication.get.provider:
+        class: %bukatov_api_token.security.authentication.get.provider.class%
+        arguments: ["", @security.user_checker, "", @security.encoder_factory, %security.authentication.hide_user_not_found%]
+
+    bukatov_api_token.security.authentication.listener:
+        class: %bukatov_api_token.security.authentication.listener.class%
+        arguments: ["@security.token_storage", "@security.authentication.manager", "", ""]
+
+    bukatov_api_token.doctrine.orm.security.provider:
+        class: %bukatov_api_token.doctrine.orm.security.provider.class%
+        arguments: ["@doctrine", "", ""]
+
+    bukatov_api_token.security.authentication.token.provider:
+        class: %bukatov_api_token.security.authentication.token.provider.class%
+        arguments: [""]
+
+    bukatov_api_token.fetcher.headers:
+        class: %bukatov_api_token.fetcher.headers.class%
         public: false
 
-    api_token.fetcher.query_string:
-        class: %api_token.fetcher.query_string.class%
+    bukatov_api_token.fetcher.query_string:
+        class: %bukatov_api_token.fetcher.query_string.class%
         public: false
 
-    api_token.fetcher.post_body:
-        class: %api_token.fetcher.post_body.class%
+    bukatov_api_token.fetcher.post_body:
+        class: %bukatov_api_token.fetcher.post_body.class%
         public: false
 
-    api_token.fetcher.json_post_body:
-        class: %api_token.fetcher.json_post_body.class%
+    bukatov_api_token.fetcher.json_post_body:
+        class: %bukatov_api_token.fetcher.json_post_body.class%
         public: false

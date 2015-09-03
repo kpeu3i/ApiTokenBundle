@@ -18,6 +18,6 @@ class BukatovApiTokenBundle extends Bundle
         $extension->addSecurityListenerFactory(new ApiTokenFactory());
         $extension->addSecurityListenerFactory(new GetApiTokenFactory());
 
-        $extension->addUserProviderFactory(new ApiUserEntityFactory('api_token_user_entity', 'api_token.doctrine.orm.security.provider'));
+        $extension->addUserProviderFactory(new ApiUserEntityFactory('api_token_user_entity', 'bukatov_api_token.doctrine.orm.security.provider'));
     }
 }
