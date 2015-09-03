@@ -9,7 +9,7 @@ use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterfac
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Firewall\ListenerInterface;
-use Bukatov\ApiTokenBundle\Security\Authentication\Token\ApiToken;
+use Bukatov\ApiTokenBundle\Security\Authentication\Token;
 
 class ApiTokenListener implements ListenerInterface
 {
@@ -44,24 +44,23 @@ class ApiTokenListener implements ListenerInterface
     public function handle(GetResponseEvent $event)
     {
         $request = $event->getRequest();
-        $apiToken = $this->parameterFetcher->fetch($request, $this->tokenName);
+        $token = $this->parameterFetcher->fetch($request, $this->tokenName);
 
-        if ($apiToken !== null) {
-            $token = new ApiToken();
-            $token->setUser($apiToken);
-
-            try {
-                $authToken = $this->authenticationManager->authenticate($token);
-                $this->tokenStorage->setToken($authToken);
-
-                return;
-            } catch (AuthenticationException $failed) {
-            }
+        if ($token === null) {
+            return;
         }
 
-        $response = new Response();
-        $response->setStatusCode(Response::HTTP_FORBIDDEN);
-        $response->setContent('Authentication failed');
-        $event->setResponse($response);
+        $apiToken = new Token\ApiToken();
+        $apiToken->setUser($token);
+
+        try {
+            $authToken = $this->authenticationManager->authenticate($apiToken);
+            $this->tokenStorage->setToken($authToken);
+        } catch (AuthenticationException $failed) {
+            $response = new Response();
+            $response->setStatusCode(Response::HTTP_FORBIDDEN);
+            $response->setContent('Authentication failed');
+            $event->setResponse($response);
+        }
     }
 }

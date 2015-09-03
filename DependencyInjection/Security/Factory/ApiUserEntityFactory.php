@@ -26,17 +26,22 @@ class ApiUserEntityFactory implements UserProviderFactoryInterface
             ->addArgument($config['manager_name']);
     }
 
-    public function getKey()
-    {
-        return $this->key;
-    }
-
     public function addConfiguration(NodeDefinition $node)
     {
         $node
             ->children()
-                ->scalarNode('class')->isRequired()->cannotBeEmpty()->end()
-                ->scalarNode('manager_name')->defaultNull()->end()
+                ->scalarNode('class')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                ->end()
+                ->scalarNode('manager_name')
+                    ->defaultNull()
+                ->end()
             ->end();
+    }
+
+    public function getKey()
+    {
+        return $this->key;
     }
 }

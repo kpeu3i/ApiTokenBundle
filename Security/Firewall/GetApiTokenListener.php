@@ -67,7 +67,7 @@ class GetApiTokenListener implements ListenerInterface
         $password = $this->parameterFetcher->fetch($request, $this->passwordParameter);
 
         if ($username === null) {
-            //return;
+            return;
         }
 
         $token = new UsernamePasswordToken($username, $password, $this->providerKey);
@@ -75,17 +75,11 @@ class GetApiTokenListener implements ListenerInterface
         try {
             $authToken = $this->authenticationManager->authenticate($token);
             $this->tokenStorage->setToken($authToken);
-
-            return;
-        } catch (AuthenticationException $failed) {
-            $errorMessage = $failed->getMessage();
+        } catch (AuthenticationException $e) {
+            $response = new Response();
+            $response->setStatusCode(Response::HTTP_FORBIDDEN);
+            $response->setContent($e->getMessage());
+            $event->setResponse($response);
         }
-
-        // By default deny authorization
-        $response = new Response();
-        $response->setStatusCode(Response::HTTP_FORBIDDEN);
-        $response->setContent($errorMessage);
-
-        $event->setResponse($response);
     }
 }

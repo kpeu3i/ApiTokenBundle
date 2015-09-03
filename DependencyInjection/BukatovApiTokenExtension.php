@@ -22,7 +22,17 @@ class BukatovApiTokenExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $container->setParameter('bukatov_api_token.token.lifetime', $config['token']['lifetime']);
+        $container->setParameter('bukatov_api_token.token.idle_time', $config['token']['idle_time']);
+
+        $container->setParameter('bukatov_api_token.transport.on_login_area.type', $config['transport']['on_login_area']['type']);
+        $container->setParameter('bukatov_api_token.transport.on_login_area.username_parameter', $config['transport']['on_login_area']['username_parameter']);
+        $container->setParameter('bukatov_api_token.transport.on_login_area.password_parameter', $config['transport']['on_login_area']['password_parameter']);
+
+        $container->setParameter('bukatov_api_token.transport.on_secure_area.type', $config['transport']['on_secure_area']['type']);
+        $container->setParameter('bukatov_api_token.transport.on_secure_area.parameter', $config['transport']['on_secure_area']['parameter']);
+
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yml');
     }
 }

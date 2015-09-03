@@ -1,7 +1,10 @@
 parameters:
     api_token.doctrine.orm.security.provider.class: Bukatov\ApiTokenBundle\Security\User\EntityApiTokenUserProvider
-    api_token.security.authentication.provider.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\ApiTokenProvider
+    api_token.security.authentication.token.provider.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\ApiTokenProvider
     api_token.security.authentication.listener.class: Bukatov\ApiTokenBundle\Security\Firewall\ApiTokenListener
+
+    api_token.security.authentication.get_token.provider.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\GetApiTokenProvider
+
     get_api_token.security.authentication.listener.class: Bukatov\ApiTokenBundle\Security\Firewall\GetApiTokenListener
 
     api_token.fetcher.headers.class: Bukatov\ApiTokenBundle\ParameterFetcher\HeadersParameterFetcher
@@ -14,9 +17,13 @@ services:
         class: %api_token.doctrine.orm.security.provider.class%
         arguments: ["@doctrine"]
 
-    api_token.security.authentication.provider:
-        class: %api_token.security.authentication.provider.class%
-        arguments: ["", "", ""]
+    api_token.security.authentication.token.provider:
+        class: %api_token.security.authentication.token.provider.class%
+        arguments: [""]
+
+    api_token.security.authentication.get_token.provider:
+        class: %api_token.security.authentication.get_token.provider.class%
+        arguments: ["", @security.user_checker, "", @security.encoder_factory, %security.authentication.hide_user_not_found%]
 
     api_token.security.authentication.listener:
         class: %api_token.security.authentication.listener.class%

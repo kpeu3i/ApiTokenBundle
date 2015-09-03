@@ -2,50 +2,28 @@
 
 namespace Bukatov\ApiTokenBundle\Controller;
 
-use Bukatov\ApiTokenBundle\Entity\ApiUserInterface;
+use Bukatov\ApiTokenBundle\Security\User\ApiTokenUserProviderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApiTokenController extends Controller
 {
-    public function getApiTokenAction(Request $request)
+    public function getApiTokenAction()
     {
-        $apiToken = $this->getApiToken($this->getUser());
+        $token = $this->getUser() instanceof ApiTokenUserProviderInterface ? (string)$this->getUser()->getApiToken() : '';
 
-        return new Response($apiToken->getToken());
+        return new Response($token);
     }
 
-    protected function getApiToken(ApiUserInterface $user)
+    public function invalidateApiTokenAction()
     {
-        $em = $this->get('doctrine')->getManager();
-        $repository = $this->get('doctrine')->getRepository('BukatovApiTokenBundle:ApiToken');
+        if ($apiToken = $this->getUser()->getApiToken()) {
+            $em = $this->getDoctrine()->getManager();
 
-        $apiToken = $repository->createOrUpdateApiToken($user);
-
-        if (!$apiToken->getId()) {
-            $em->persist($apiToken);
+            $em->remove($apiToken);
+            $em->flush($apiToken);
         }
-
-        $em->flush();
-
-        return $apiToken;
-    }
-
-    public function invalidateApiTokenAction(Request $request)
-    {
-        $this->invalidateApiToken($this->getUser());
 
         return new Response();
-    }
-
-    protected function invalidateApiToken(ApiUserInterface $user)
-    {
-        $em = $this->get('doctrine')->getManager();
-
-        if ($apiToken = $user->getApiToken()) {
-            $em->remove($apiToken);
-            $em->flush();
-        }
     }
 }

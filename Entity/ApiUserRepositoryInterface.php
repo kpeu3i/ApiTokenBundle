@@ -6,5 +6,5 @@ interface ApiUserRepositoryInterface
 {
     public function loadUserByApiToken($apiToken);
 
-    public function refreshApiTokenLastUsedAt($apiToken);
+    public function loadUserByUsername($username);
 }

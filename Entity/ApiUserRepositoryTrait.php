@@ -6,38 +6,36 @@ use Doctrine\ORM\EntityRepository;
 
 trait ApiUserRepositoryTrait
 {
-    public function loadUserByApiToken($apiToken)
+    public function loadUserByUsername($username)
     {
         $this->validateMethodCallContext();
 
-        /* @var EntityRepository $this */
-
         $qb = $this->createQueryBuilder('u');
-        $qb->innerJoin('u.apiToken', 't', 'WITH', 't.token = :api_token');
 
-        $qb->setParameter('api_token', $apiToken);
+        $qb->where('u.username = :username');
+
+        $qb->setParameter('username', $username);
 
         return $qb->getQuery()->getOneOrNullResult();
     }
 
-    public function refreshApiTokenLastUsedAt($apiToken)
+    public function loadUserByApiToken($token)
     {
-        $this->validateMethodCallContext();
-
-        /* @var EntityRepository $this */
+        $token = $token instanceof ApiToken ? $token->getToken() : $token;
 
         $qb = $this->getEntityManager()->createQueryBuilder();
 
         $qb
-            ->update('BukatovApiTokenBundle:ApiToken', 't')
-            ->set('t.lastUsedAt', ':date')
-            ->where('t.token = :api_token');
+            ->select('t, u')
+            ->from('BukatovApiTokenBundle:ApiToken', 't')
+            ->innerJoin('t.user', 'u')
+            ->where('t.token = :token');
 
-        $qb
-            ->setParameter('date', new \DateTime())
-            ->setParameter('api_token', $apiToken);
+        $qb->setParameter('token', $token);
 
-        return $qb->getQuery()->execute();
+        $apiToken = $qb->getQuery()->getOneOrNullResult();
+
+        return $apiToken ? $apiToken->getUser() : null;
     }
 
     private function validateMethodCallContext()

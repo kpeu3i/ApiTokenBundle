@@ -18,7 +18,60 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('bukatov_api_token');
+
+        $treeBuilder->root('bukatov_api_token')
+            ->addDefaultsIfNotSet()
+            ->children()
+
+                ->arrayNode('token')
+                    ->children()
+                        ->scalarNode('lifetime')
+                            ->defaultNull()
+                        ->end()
+                        ->scalarNode('idle_time')
+                            ->defaultNull()
+                        ->end()
+                    ->end()
+                ->end()
+
+                ->arrayNode('transport')
+                    ->children()
+                        ->arrayNode('on_secure_area')
+                            ->children()
+                                ->scalarNode('type')
+                                    ->defaultValue('headers')
+                                    ->validate()
+                                        ->ifNotInArray(['headers', 'query_string', 'post_body', 'json_post_body'])
+                                        ->thenInvalid('Unsupported transport type "%s"')
+                                     ->end()
+                                ->end()
+                                ->scalarNode('parameter')
+                                    ->defaultValue('X-Api-Token')
+                                ->end()
+                            ->end()
+                        ->end()
+
+                        ->arrayNode('on_login_area')
+                            ->children()
+                                ->scalarNode('type')
+                                    ->defaultValue('json_post_body')
+                                    ->validate()
+                                        ->ifNotInArray(['headers', 'query_string', 'post_body', 'json_post_body'])
+                                        ->thenInvalid('Unsupported transport type "%s"')
+                                     ->end()
+                                ->end()
+                                ->scalarNode('username_parameter')
+                                    ->defaultValue('username')
+                                ->end()
+                                ->scalarNode('password_parameter')
+                                    ->defaultValue('password')
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+
+            ->end();
 
         return $treeBuilder;
     }

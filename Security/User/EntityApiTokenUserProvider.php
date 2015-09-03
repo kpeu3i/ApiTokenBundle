@@ -2,9 +2,11 @@
 
 namespace Bukatov\ApiTokenBundle\Security\User;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\ORM\EntityManagerInterface;
+use Bukatov\ApiTokenBundle\Entity;
+use Bukatov\ApiTokenBundle\Entity\ApiUserInterface;
 use Bukatov\ApiTokenBundle\Entity\ApiUserRepositoryInterface;
+use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -12,7 +14,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class EntityApiTokenUserProvider implements ApiTokenUserProviderInterface
 {
     /**
-     * @var EntityManagerInterface
+     * @var EntityManager
      */
     private $em;
 
@@ -22,58 +24,101 @@ class EntityApiTokenUserProvider implements ApiTokenUserProviderInterface
     private $class;
 
     /**
-     * @var ApiUserRepositoryInterface
+     * @var ApiUserRepositoryInterface|null
      */
-    private $useRepository;
-
-    /**
-     * @var \Doctrine\Common\Persistence\Mapping\ClassMetadata
-     */
-    private $metadata;
+    private $userRepository;
 
     public function __construct(ManagerRegistry $registry, $class, $managerName = null)
     {
         $this->em = $registry->getManager($managerName);
-
         $this->class = $class;
-        $this->metadata = $this->em->getClassMetadata($class);
-
-        if (false !== strpos($this->class, ':')) {
-            $this->class = $this->metadata->getName();
-        }
-
-        $this->useRepository = $this->em->getRepository($class);
-
-        if (!$this->useRepository instanceof ApiUserRepositoryInterface) {
-            throw new \InvalidArgumentException(sprintf('Repository class %s must implement ApiUserRepositoryInterface', $this->class));
-        }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function loadUserByApiToken($apiToken)
+    public function loadUserByApiToken($token)
     {
-        $user = $this->useRepository->loadUserByApiToken($apiToken);
+        $user = $this->getUserRepository()->loadUserByApiToken($token);
 
         if (null === $user) {
-            throw new UsernameNotFoundException(sprintf('User with api token "%s" not found.', $apiToken));
+            throw new UsernameNotFoundException(sprintf('User with token "%s" not found.', $token));
+        }
+
+        return $user;
+    }
+
+    public function loadUserByUsername($username)
+    {
+        $user = $this->getUserRepository()->loadUserByUsername($username);
+
+        if (null === $user) {
+            throw new UsernameNotFoundException(sprintf('User with username "%s" not found.', $username));
         }
 
         return $user;
     }
 
     /**
-     * {@inheritdoc}
+     * @param ApiUserInterface $user
+     *
+     * @param null $lifetime
+     * @param null $idleTime
+     *
+     * @return Entity\ApiToken
      */
-    public function refreshApiTokenLastUsedAt($apiToken)
+    public function createOrUpdateApiTokenForUser(Entity\ApiUserInterface $user, $lifetime = null, $idleTime = null)
     {
-        return $this->useRepository->refreshApiTokenLastUsedAt($apiToken);
+        /* @var Entity\ApiToken $apiToken */
+        $apiToken = $this->em->getRepository('BukatovApiTokenBundle:ApiToken')->createOrUpdateApiToken($user);
+
+        $apiToken->setLifetime($lifetime);
+        $apiToken->setIdleTime($idleTime);
+
+        if (!$apiToken->getId()) {
+            $this->em->persist($apiToken);
+        }
+
+        $this->em->flush($apiToken);
+
+        return $apiToken;
     }
 
-    public function loadUserByUsername($username)
+    /**
+     * {@inheritdoc}
+     */
+    public function refreshApiTokenLastUsedAtForUser(Entity\ApiUserInterface $user)
     {
-        throw new UnsupportedUserException();
+        if ($apiToken = $user->getApiToken()) {
+            $apiToken->refreshLastUsedAt();
+
+            $this->em->flush($apiToken);
+        }
+
+        return $apiToken;
+    }
+
+    /**
+     * @return ApiUserRepositoryInterface
+     */
+    private function getUserRepository()
+    {
+        if ($this->userRepository === null) {
+            $metadata = $this->em->getClassMetadata($this->class);
+
+            $class = $this->class;
+            if (false !== strpos($this->class, ':')) {
+                $class = $metadata->getName();
+            }
+
+            $this->userRepository = $this->em->getRepository($class);
+
+            if (!$this->userRepository instanceof ApiUserRepositoryInterface) {
+                throw new \InvalidArgumentException(sprintf('The Doctrine repository "%s" must implement ApiUserRepositoryInterface.', get_class($this->userRepository)));
+            }
+        }
+
+        return $this->userRepository;
     }
 
     /**
@@ -83,8 +128,8 @@ class EntityApiTokenUserProvider implements ApiTokenUserProviderInterface
     {
         // This is used for storing authentication in the session
         // but the token is sent in each request,
-        // so authentication can be stateless. Throwing this exception
-        // is proper to make things stateless
+        // so authentication can be stateless.
+        // Throwing this exception is proper to make things stateless
 
         throw new UnsupportedUserException();
     }

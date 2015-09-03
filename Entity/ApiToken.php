@@ -29,6 +29,16 @@ class ApiToken
     protected $token;
 
     /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    protected $lifetime;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    protected $idleTime;
+
+    /**
      * @ORM\Column(type="datetime", nullable=false)
      */
     protected $createdAt;
@@ -50,6 +60,11 @@ class ApiToken
         $this->createdAt = new \DateTime();
     }
 
+    public function __toString()
+    {
+        return $this->token;
+    }
+
     public function refresh()
     {
         $this->token = $this->generateToken($this->user->getSalt());
@@ -62,6 +77,39 @@ class ApiToken
     private function generateToken($secret)
     {
         return sha1(uniqid(mt_rand() . $secret . mt_rand(), true));
+    }
+
+    public function isValid($currentTimestamp = null)
+    {
+        $createdAtTimestamp = $this->getCreatedAt()->getTimestamp();
+        $lastUsedAtTimestamp = $this->getLastUsedAt() ? $this->getLastUsedAt()->getTimestamp() : null;
+        $currentTimestamp = $currentTimestamp ?: time();
+
+        if ($this->lifetime !== null) {
+            // Check created time is not in the future
+            if ($createdAtTimestamp > $currentTimestamp) {
+                return false;
+            }
+
+            // Expire token after lifetime
+            if ($currentTimestamp - $createdAtTimestamp > $this->lifetime) {
+                return false;
+            }
+        }
+
+        if ($this->idleTime !== null) {
+            // Check last used time is not in the future
+            if ($lastUsedAtTimestamp > $currentTimestamp) {
+                return false;
+            }
+
+            // Expire token after idle time
+            if ($lastUsedAtTimestamp !== null && $currentTimestamp - $lastUsedAtTimestamp > $this->idleTime) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -139,10 +187,34 @@ class ApiToken
     }
 
     /**
+     * @return ApiUserInterface
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
      * @param ApiUserInterface $user
      */
     public function setUser(ApiUserInterface $user)
     {
         $this->user = $user;
+    }
+
+    /**
+     * @param int $lifetime
+     */
+    public function setLifetime($lifetime)
+    {
+        $this->lifetime = $lifetime;
+    }
+
+    /**
+     * @param int $idleTime
+     */
+    public function setIdleTime($idleTime)
+    {
+        $this->idleTime = $idleTime;
     }
 }
