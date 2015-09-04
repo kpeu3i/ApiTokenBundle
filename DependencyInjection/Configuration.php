@@ -24,6 +24,7 @@ class Configuration implements ConfigurationInterface
             ->children()
 
                 ->arrayNode('token')
+                    ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('lifetime')
                             ->defaultNull()
@@ -35,8 +36,10 @@ class Configuration implements ConfigurationInterface
                 ->end()
 
                 ->arrayNode('transport')
+                    ->addDefaultsIfNotSet()
                     ->children()
                         ->arrayNode('on_secure_area')
+                            ->addDefaultsIfNotSet()
                             ->children()
                                 ->scalarNode('type')
                                     ->defaultValue('headers')
@@ -52,6 +55,7 @@ class Configuration implements ConfigurationInterface
                         ->end()
 
                         ->arrayNode('on_login_area')
+                            ->addDefaultsIfNotSet()
                             ->children()
                                 ->scalarNode('type')
                                     ->defaultValue('json_post_body')
