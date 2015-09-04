@@ -8,27 +8,31 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Bukatov\ApiTokenBundle\Security\Authentication\Token;
 use Bukatov\ApiTokenBundle\Entity;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class ApiTokenProvider implements AuthenticationProviderInterface
 {
     private $userProvider;
 
-    public function __construct(ApiTokenUserProviderInterface $userProvider)
+    public function __construct(UserProviderInterface $userProvider)
     {
         $this->userProvider = $userProvider;
     }
 
     public function authenticate(TokenInterface $token)
     {
+        /* @var ApiTokenUserProviderInterface $userProvider */
+        $userProvider = $this->userProvider;
+
         $apiTokenHash = $token->getUser();
-        $user = $this->userProvider->loadUserByApiToken($apiTokenHash);
+        $user = $userProvider->loadUserByApiToken($apiTokenHash);
         $apiToken = $user ? $user->getApiToken() : null;
 
         if ($apiToken && $apiToken->isValid()) {
             $authenticatedToken = new Token\ApiToken($user->getRoles());
             $authenticatedToken->setUser($user);
 
-            $this->userProvider->refreshApiTokenLastUsedAtForUser($user);
+            $userProvider->refreshApiTokenLastUsedAtForUser($user);
 
             return $authenticatedToken;
         }
@@ -38,6 +42,6 @@ class ApiTokenProvider implements AuthenticationProviderInterface
 
     public function supports(TokenInterface $token)
     {
-        return $token instanceof Token\ApiToken;
+        return $token instanceof Token\ApiToken && $this->userProvider instanceof ApiTokenUserProviderInterface;
     }
 }

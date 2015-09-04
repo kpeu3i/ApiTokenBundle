@@ -7,16 +7,26 @@ use Symfony\Component\Security\Core\Authentication\Provider\DaoAuthenticationPro
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class GetApiTokenProvider extends DaoAuthenticationProvider
 {
+    /**
+     * @var UserProviderInterface
+     */
     private $userProvider;
 
+    /**
+     * @var int|null
+     */
     private $lifetime;
 
+    /**
+     * @var int|null
+     */
     private $idleTime;
 
-    public function __construct(ApiTokenUserProviderInterface $userProvider, UserCheckerInterface $userChecker, $providerKey, EncoderFactoryInterface $encoderFactory, $hideUserNotFoundExceptions = true)
+    public function __construct(UserProviderInterface $userProvider, UserCheckerInterface $userChecker, $providerKey, EncoderFactoryInterface $encoderFactory, $hideUserNotFoundExceptions = true)
     {
         parent::__construct($userProvider, $userChecker, $providerKey, $encoderFactory, $hideUserNotFoundExceptions);
 
@@ -27,7 +37,10 @@ class GetApiTokenProvider extends DaoAuthenticationProvider
     {
         $authenticatedToken = parent::authenticate($token);
 
-        $this->userProvider->createOrUpdateApiTokenForUser($authenticatedToken->getUser(), $this->lifetime, $this->idleTime);
+        /* @var ApiTokenUserProviderInterface $userProvider */
+        $userProvider = $this->userProvider;
+
+        $userProvider->createOrUpdateApiTokenForUser($authenticatedToken->getUser(), $this->lifetime, $this->idleTime);
 
         return $authenticatedToken;
     }
@@ -46,5 +59,10 @@ class GetApiTokenProvider extends DaoAuthenticationProvider
     public function setIdleTime($idleTime)
     {
         $this->idleTime = $idleTime;
+    }
+
+    public function supports(TokenInterface $token)
+    {
+        return $this->userProvider instanceof ApiTokenUserProviderInterface;
     }
 }
