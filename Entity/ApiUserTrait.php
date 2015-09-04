@@ -10,16 +10,16 @@ trait ApiUserTrait
      * @var ApiToken
      * @ORM\OneToOne(targetEntity="Bukatov\ApiTokenBundle\Entity\ApiToken", mappedBy="user")
      */
-    protected $apiToken;
+    protected $bukatovApiToken;
 
     public function getApiToken()
     {
-        return $this->apiToken;
+        return $this->bukatovApiToken;
     }
 
     public function setApiToken(ApiToken $apiToken)
     {
-        $this->apiToken = $apiToken;
+        $this->bukatovApiToken = $apiToken;
 
         return $this;
     }
