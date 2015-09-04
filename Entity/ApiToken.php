@@ -50,7 +50,7 @@ class ApiToken
 
     /**
      * @var ApiUserInterface
-     * @ORM\OneToOne(targetEntity="ApiUserInterface", inversedBy="apiToken")
+     * @ORM\OneToOne(targetEntity="ApiUserInterface", inversedBy="bukatovApiToken")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     protected $user;
