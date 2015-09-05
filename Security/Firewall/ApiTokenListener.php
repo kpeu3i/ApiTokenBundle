@@ -50,8 +50,7 @@ class ApiTokenListener implements ListenerInterface
             return;
         }
 
-        $apiToken = new Token\ApiToken();
-        $apiToken->setUser($token);
+        $apiToken = new Token\ApiToken($token);
 
         try {
             $authToken = $this->authenticationManager->authenticate($apiToken);

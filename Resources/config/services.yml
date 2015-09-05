@@ -12,6 +12,8 @@ parameters:
     bukatov_api_token.fetcher.post_body.class: Bukatov\ApiTokenBundle\ParameterFetcher\PostBodyParameterFetcher
     bukatov_api_token.fetcher.json_post_body.class: Bukatov\ApiTokenBundle\ParameterFetcher\JsonPostBodyParameterFetcher
 
+    bukatov_api_token.security.authentication.manager.class: Bukatov\ApiTokenBundle\Security\Core\AuthenticationManager
+
 services:
     bukatov_api_token.security.authentication.get.listener:
         class: %bukatov_api_token.security.authentication.get.listener.class%
@@ -48,3 +50,10 @@ services:
     bukatov_api_token.fetcher.json_post_body:
         class: %bukatov_api_token.fetcher.json_post_body.class%
         public: false
+
+    bukatov_api_token.security.authentication.manager:
+        class: %bukatov_api_token.security.authentication.manager.class%
+        parent: security.authentication.manager
+        public: true
+        calls:
+            - [setTokenStorage, [@security.token_storage]]
