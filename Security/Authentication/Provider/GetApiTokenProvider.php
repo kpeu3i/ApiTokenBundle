@@ -42,10 +42,10 @@ class GetApiTokenProvider extends DaoAuthenticationProvider
 
     public function authenticate(TokenInterface $token)
     {
-        $authenticatedToken = parent::authenticate($token);
-
         /* @var ApiTokenUserProviderInterface $userProvider */
         $userProvider = $this->userProvider;
+
+        $authenticatedToken = parent::authenticate($token);
 
         $userProvider->createOrUpdateApiTokenForUser($authenticatedToken->getUser(), $this->lifetime, $this->idleTime);
 

@@ -30,6 +30,8 @@ class ApiTokenProvider implements AuthenticationProviderInterface
 
         if ($apiToken && $apiToken->isValid()) {
             $authenticatedToken = new Token\ApiToken($user, $user->getRoles());
+            $authenticatedToken->setAuthenticated(true);
+
             $userProvider->refreshApiTokenLastUsedAtForUser($user);
 
             return $authenticatedToken;
