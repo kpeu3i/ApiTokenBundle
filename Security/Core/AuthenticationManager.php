@@ -73,9 +73,6 @@ class AuthenticationManager extends BaseAuthenticationProviderManager
                 if (!$provider instanceof AuthenticationProviderInterface) {
                     throw new \InvalidArgumentException(sprintf('Provider "%s" must implement the AuthenticationProviderInterface.', get_class($provider)));
                 }
-
-                print_r(get_class($provider));
-                print_r("\n");
             }
 
             $this->manager = new BaseAuthenticationProviderManager($this->providers, $this->eraseCredentials);
