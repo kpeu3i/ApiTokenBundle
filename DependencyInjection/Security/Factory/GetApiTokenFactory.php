@@ -22,7 +22,6 @@ class GetApiTokenFactory implements SecurityFactoryInterface
         $container
             ->setDefinition($providerId, new DefinitionDecorator('bukatov_api_token.security.authentication.get.provider'))
             ->replaceArgument(0, new Reference($userProvider))
-            ->replaceArgument(2, $id)
             ->addMethodCall('setLifetime', [$tokenLifetime])
             ->addMethodCall('setIdleTime', [$tokenIdleTime]);
 

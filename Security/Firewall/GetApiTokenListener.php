@@ -3,11 +3,11 @@
 namespace Bukatov\ApiTokenBundle\Security\Firewall;
 
 use Bukatov\ApiTokenBundle\ParameterFetcher\ParameterFetcherInterface;
+use Bukatov\ApiTokenBundle\Security\Authentication\Token\GetApiToken;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Firewall\ListenerInterface;
 
@@ -70,7 +70,7 @@ class GetApiTokenListener implements ListenerInterface
             return;
         }
 
-        $token = new UsernamePasswordToken($username, $password, $this->providerKey);
+        $token = new GetApiToken($username, $password);
 
         try {
             $authToken = $this->authenticationManager->authenticate($token);

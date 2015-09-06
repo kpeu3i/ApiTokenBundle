@@ -24,7 +24,7 @@ services:
 
     bukatov_api_token.security.authentication.get.provider:
         class: %bukatov_api_token.security.authentication.get.provider.class%
-        arguments: ["", @security.user_checker, "", @security.encoder_factory, %security.authentication.hide_user_not_found%]
+        arguments: ["", @security.user_checker, @security.encoder_factory, %security.authentication.hide_user_not_found%]
 
     bukatov_api_token.security.authentication.listener:
         class: %bukatov_api_token.security.authentication.listener.class%
@@ -63,9 +63,8 @@ services:
 
     bukatov_api_token.provider.factory:
         class: %bukatov_api_token.provider.factory.class%
-        arguments: [@security.user_checker, @security.encoder_factory, @bukatov_api_token.user.provider.factory]
+        arguments: [@security.user_checker, @security.encoder_factory, @bukatov_api_token.user.provider.factory, %security.authentication.hide_user_not_found%]
 
     bukatov_api_token.user.provider.factory:
         class: %bukatov_api_token.user.provider.factory.class%
         arguments: ["@doctrine"]
-
