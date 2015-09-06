@@ -1,6 +1,6 @@
 <?php
 
-namespace Bukatov\ApiTokenBundle\Security\User;
+namespace Bukatov\ApiTokenBundle\Security\Core\User;
 
 use Bukatov\ApiTokenBundle\Entity;
 use Symfony\Component\Security\Core\User\UserProviderInterface;

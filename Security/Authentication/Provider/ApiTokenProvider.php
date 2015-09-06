@@ -2,7 +2,7 @@
 
 namespace Bukatov\ApiTokenBundle\Security\Authentication\Provider;
 
-use Bukatov\ApiTokenBundle\Security\User\ApiTokenUserProviderInterface;
+use Bukatov\ApiTokenBundle\Security\Core\User\ApiTokenUserProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;

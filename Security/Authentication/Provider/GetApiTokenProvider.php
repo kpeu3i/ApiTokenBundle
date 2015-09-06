@@ -2,7 +2,7 @@
 
 namespace Bukatov\ApiTokenBundle\Security\Authentication\Provider;
 
-use Bukatov\ApiTokenBundle\Security\User\ApiTokenUserProviderInterface;
+use Bukatov\ApiTokenBundle\Security\Core\User\ApiTokenUserProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
@@ -50,6 +50,14 @@ class GetApiTokenProvider extends DaoAuthenticationProvider
         $userProvider->createOrUpdateApiTokenForUser($authenticatedToken->getUser(), $this->lifetime, $this->idleTime);
 
         return $authenticatedToken;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProviderKey()
+    {
+        return $this->providerKey;
     }
 
     /**

@@ -3,7 +3,7 @@ parameters:
     bukatov_api_token.security.authentication.get.provider.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\GetApiTokenProvider
 
     bukatov_api_token.security.authentication.listener.class: Bukatov\ApiTokenBundle\Security\Firewall\ApiTokenListener
-    bukatov_api_token.doctrine.orm.security.provider.class: Bukatov\ApiTokenBundle\Security\User\EntityApiTokenUserProvider
+    bukatov_api_token.doctrine.orm.security.provider.class: Bukatov\ApiTokenBundle\Security\Core\User\EntityApiTokenUserProvider
 
     bukatov_api_token.security.authentication.token.provider.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\ApiTokenProvider
 
@@ -13,6 +13,9 @@ parameters:
     bukatov_api_token.fetcher.json_post_body.class: Bukatov\ApiTokenBundle\ParameterFetcher\JsonPostBodyParameterFetcher
 
     bukatov_api_token.security.authentication.manager.class: Bukatov\ApiTokenBundle\Security\Core\AuthenticationManager
+
+    bukatov_api_token.provider.factory.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\ProviderFactory
+    bukatov_api_token.user.provider.factory.class: Bukatov\ApiTokenBundle\Security\Core\User\UserProviderFactory
 
 services:
     bukatov_api_token.security.authentication.get.listener:
@@ -57,3 +60,12 @@ services:
         public: true
         calls:
             - [setTokenStorage, [@security.token_storage]]
+
+    bukatov_api_token.provider.factory:
+        class: %bukatov_api_token.provider.factory.class%
+        arguments: [@security.user_checker, @security.encoder_factory, @bukatov_api_token.user.provider.factory]
+
+    bukatov_api_token.user.provider.factory:
+        class: %bukatov_api_token.user.provider.factory.class%
+        arguments: ["@doctrine"]
+
