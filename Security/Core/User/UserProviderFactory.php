@@ -12,18 +12,24 @@ class UserProviderFactory
     protected $registry;
 
     /**
+     * @var string
+     */
+    protected $userEntityClass;
+
+    /**
      * @var null|string
      */
     protected $managerName;
 
-    public function __construct(ManagerRegistry $registry, $managerName = null)
+    public function __construct(ManagerRegistry $registry, $userEntityClass, $managerName = null)
     {
+        $this->userEntityClass = $userEntityClass;
         $this->registry = $registry;
         $this->managerName = $managerName;
     }
 
-    public function createEntityApiTokenUserProvider($userClass)
+    public function createEntityApiTokenUserProvider()
     {
-        return new EntityApiTokenUserProvider($this->registry, $userClass, $this->managerName);
+        return new EntityApiTokenUserProvider($this->registry, $this->userEntityClass, $this->managerName);
     }
 }

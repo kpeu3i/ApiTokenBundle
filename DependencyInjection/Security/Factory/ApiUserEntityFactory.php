@@ -20,9 +20,11 @@ class ApiUserEntityFactory implements UserProviderFactoryInterface
 
     public function create(ContainerBuilder $container, $id, $config)
     {
+        $class = isset($config['class']) ? $config['class'] : '%bukatov_api_token.provider.user_entity_class%';
+
         $container
             ->setDefinition($id, new DefinitionDecorator($this->providerId))
-            ->replaceArgument(1, $config['class'])
+            ->replaceArgument(1, $class)
             ->replaceArgument(2, $config['manager_name']);
     }
 
@@ -31,8 +33,7 @@ class ApiUserEntityFactory implements UserProviderFactoryInterface
         $node
             ->children()
                 ->scalarNode('class')
-                    ->isRequired()
-                    ->cannotBeEmpty()
+                    ->defaultNull()
                 ->end()
                 ->scalarNode('manager_name')
                     ->defaultNull()

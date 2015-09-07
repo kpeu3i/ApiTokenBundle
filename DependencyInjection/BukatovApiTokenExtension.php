@@ -22,6 +22,8 @@ class BukatovApiTokenExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
+        $container->setParameter('bukatov_api_token.provider.user_entity_class', $config['provider']['user_entity_class']);
+
         $container->setParameter('bukatov_api_token.token.lifetime', $config['token']['lifetime']);
         $container->setParameter('bukatov_api_token.token.idle_time', $config['token']['idle_time']);
 

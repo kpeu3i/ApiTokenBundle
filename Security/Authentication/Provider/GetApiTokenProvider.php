@@ -49,18 +49,26 @@ class GetApiTokenProvider extends DaoAuthenticationProvider
 
     /**
      * @param mixed $lifetime
+     *
+     * @return $this
      */
     public function setLifetime($lifetime)
     {
         $this->lifetime = $lifetime;
+
+        return $this;
     }
 
     /**
      * @param mixed $idleTime
+     *
+     * @return $this
      */
     public function setIdleTime($idleTime)
     {
         $this->idleTime = $idleTime;
+
+        return $this;
     }
 
     public function supports(TokenInterface $token)

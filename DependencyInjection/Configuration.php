@@ -20,8 +20,18 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
 
         $treeBuilder->root('bukatov_api_token')
-            ->addDefaultsIfNotSet()
             ->children()
+
+                ->arrayNode('provider')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                    ->children()
+                        ->scalarNode('user_entity_class')
+                            ->isRequired()
+                            ->cannotBeEmpty()
+                        ->end()
+                    ->end()
+                ->end()
 
                 ->arrayNode('token')
                     ->addDefaultsIfNotSet()

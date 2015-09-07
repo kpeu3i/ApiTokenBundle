@@ -26,7 +26,7 @@ class ProviderFactory
     /**
      * @var bool
      */
-    private $hideUserNotFoundExceptions;
+    protected $hideUserNotFoundExceptions;
 
     public function __construct(UserCheckerInterface $userChecker, EncoderFactoryInterface $encoderFactory, UserProviderFactory $userProviderFactory, $hideUserNotFoundExceptions = true)
     {
@@ -36,16 +36,21 @@ class ProviderFactory
         $this->hideUserNotFoundExceptions = $hideUserNotFoundExceptions;
     }
 
-    public function createGetApiTokenProvider($userClass)
+    public function createGetApiTokenProvider($lifetime = null, $idleTime = null)
     {
-        $userProvider = $this->userProviderFactory->createEntityApiTokenUserProvider($userClass);
+        $userProvider = $this->userProviderFactory->createEntityApiTokenUserProvider();
+        $provider = new GetApiTokenProvider($userProvider, $this->userChecker, $this->encoderFactory, $this->hideUserNotFoundExceptions);
 
-        return new GetApiTokenProvider($userProvider, $this->userChecker, $this->encoderFactory, $this->hideUserNotFoundExceptions);
+        $provider
+            ->setLifetime($lifetime)
+            ->setIdleTime($idleTime);
+
+        return $provider;
     }
 
-    public function createApiTokenProvider($userClass)
+    public function createApiTokenProvider()
     {
-        $userProvider = $this->userProviderFactory->createEntityApiTokenUserProvider($userClass);
+        $userProvider = $this->userProviderFactory->createEntityApiTokenUserProvider();
 
         return new ApiTokenProvider($userProvider);
     }
