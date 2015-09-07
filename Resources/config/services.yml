@@ -68,6 +68,8 @@ services:
             - @security.encoder_factory
             - @bukatov_api_token.user.provider.factory
             - %security.authentication.hide_user_not_found%
+            - %bukatov_api_token.token.lifetime%
+            - %bukatov_api_token.token.idle_time%
 
     bukatov_api_token.user.provider.factory:
         class: %bukatov_api_token.user.provider.factory.class%
