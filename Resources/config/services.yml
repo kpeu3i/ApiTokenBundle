@@ -60,6 +60,7 @@ services:
         public: true
         calls:
             - [setTokenStorage, [@security.token_storage]]
+            - [setEventDispatcher, [@event_dispatcher]]
 
     bukatov_api_token.provider.factory:
         class: %bukatov_api_token.provider.factory.class%
