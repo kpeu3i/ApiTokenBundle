@@ -58,7 +58,9 @@ class AuthenticationManager extends BaseAuthenticationProviderManager
 
     public function setEventDispatcher(EventDispatcherInterface $dispatcher)
     {
-        $this->getManager()->setEventDispatcher($dispatcher);
+        $this->eventDispatcher = $dispatcher;
+
+        $this->manager = null;
     }
 
     protected function getManager()
@@ -76,6 +78,7 @@ class AuthenticationManager extends BaseAuthenticationProviderManager
             }
 
             $this->manager = new BaseAuthenticationProviderManager($this->providers, $this->eraseCredentials);
+            $this->manager->setEventDispatcher($this->eventDispatcher);
         }
 
         return $this->manager;
