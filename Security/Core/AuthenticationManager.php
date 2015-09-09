@@ -56,13 +56,6 @@ class AuthenticationManager extends BaseAuthenticationProviderManager
         return $authenticatedToken;
     }
 
-    public function setEventDispatcher(EventDispatcherInterface $dispatcher)
-    {
-        $this->eventDispatcher = $dispatcher;
-
-        $this->manager = null;
-    }
-
     protected function getManager()
     {
         if ($this->manager === null) {
@@ -127,6 +120,15 @@ class AuthenticationManager extends BaseAuthenticationProviderManager
     public function setEraseCredentials($eraseCredentials)
     {
         $this->eraseCredentials = (bool)$eraseCredentials;
+
+        $this->manager = null;
+
+        return $this;
+    }
+
+    public function setEventDispatcher(EventDispatcherInterface $dispatcher)
+    {
+        $this->eventDispatcher = $dispatcher;
 
         $this->manager = null;
 
