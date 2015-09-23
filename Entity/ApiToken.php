@@ -76,7 +76,7 @@ class ApiToken
 
     private function generateToken($secret)
     {
-        return sha1(uniqid(mt_rand() . $secret . mt_rand(), true));
+        return sprintf('%04x%04x%04x%04x%04x%04x%04x%04x', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535)) . sha1(uniqid(mt_rand() . $secret . mt_rand(), true));
     }
 
     public function isValid($currentTimestamp = null)
