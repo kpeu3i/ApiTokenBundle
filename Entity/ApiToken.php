@@ -4,13 +4,10 @@ namespace Bukatov\ApiTokenBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Table
  * @ORM\Entity(repositoryClass="Bukatov\ApiTokenBundle\Entity\ApiTokenRepository")
- *
- * @UniqueEntity("token")
  */
 class ApiToken
 {
@@ -26,7 +23,7 @@ class ApiToken
      * @ORM\Column(type="string", unique=true, nullable=false)
      * @Assert\Length(min="40", max="40")
      */
-    protected $token;
+    protected $value;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
@@ -37,6 +34,27 @@ class ApiToken
      * @ORM\Column(type="integer", nullable=true)
      */
     protected $idleTime;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", nullable=true)
+     * @Assert\Length(max="255")
+     */
+    protected $browser;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", nullable=true)
+     * @Assert\Length(max="255")
+     */
+    protected $device;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", nullable=false)
+     * @Assert\Length(max="255")
+     */
+    protected $ipAddress;
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
@@ -50,7 +68,7 @@ class ApiToken
 
     /**
      * @var ApiUserInterface
-     * @ORM\OneToOne(targetEntity="ApiUserInterface", inversedBy="bukatovApiToken")
+     * @ORM\ManyToOne(targetEntity="ApiUserInterface", inversedBy="apiTokens", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     protected $user;
@@ -62,28 +80,28 @@ class ApiToken
 
     public function __toString()
     {
-        return $this->token;
+        return (string)$this->value;
     }
 
-    public function refresh()
-    {
-        $this->token = $this->generateToken($this->user->getSalt());
-        $this->createdAt = new \DateTime();
-        $this->lastUsedAt = null;
+//    public function refresh()
+//    {
+//        $this->token = $this->generateToken($this->user->getSalt());
+//        $this->createdAt = new \DateTime();
+//        $this->lastUsedAt = null;
+//        $this->lastUsedIpAddress = null;
+//
+//        return $this;
+//    }
 
-        return $this;
-    }
-
-    private function generateToken($secret)
-    {
-        return sprintf('%04x%04x%04x%04x%04x%04x%04x%04x', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535)) . sha1(uniqid(mt_rand() . $secret . mt_rand(), true));
-    }
-
-    public function isValid($currentTimestamp = null)
+    public function isValid($ipAddress, $currentTimestamp = null)
     {
         $createdAtTimestamp = $this->getCreatedAt()->getTimestamp();
         $lastUsedAtTimestamp = $this->getLastUsedAt() ? $this->getLastUsedAt()->getTimestamp() : null;
         $currentTimestamp = $currentTimestamp ?: time();
+
+        if ($this->ipAddress !== $ipAddress) {
+            return false;
+        }
 
         if ($this->lifetime !== null) {
             // Check created time is not in the future
@@ -181,9 +199,17 @@ class ApiToken
     /**
      * @return string
      */
-    public function getToken()
+    public function getValue()
     {
-        return $this->token;
+        return $this->value;
+    }
+
+    /**
+     * @param string $value
+     */
+    public function setValue($value)
+    {
+        $this->value = $value;
     }
 
     /**
@@ -217,4 +243,25 @@ class ApiToken
     {
         $this->idleTime = $idleTime;
     }
+
+    /**
+     * @return string
+     */
+    public function getIpAddress()
+    {
+        return $this->ipAddress;
+    }
+
+    /**
+     * @param string $ipAddress
+     */
+    public function setIpAddress($ipAddress)
+    {
+        $this->ipAddress = $ipAddress;
+    }
+
+//    public static function generateRandomToken($secret)
+//    {
+//        return sprintf('%04x%04x%04x%04x%04x%04x%04x%04x', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535)) . sha1(uniqid(mt_rand() . $secret . mt_rand(), true));
+//    }
 }

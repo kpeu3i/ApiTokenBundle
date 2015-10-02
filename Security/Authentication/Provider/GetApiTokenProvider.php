@@ -2,7 +2,8 @@
 
 namespace Bukatov\ApiTokenBundle\Security\Authentication\Provider;
 
-use Bukatov\ApiTokenBundle\Security\Authentication\Token\GetApiToken;
+use Bukatov\ApiTokenBundle\Security\Authentication\Token\Manager\ApiTokenManagerInterface;
+use Bukatov\ApiTokenBundle\Security\Authentication\Token;
 use Bukatov\ApiTokenBundle\Security\Core\User\ApiTokenUserProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -13,7 +14,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class GetApiTokenProvider extends DaoAuthenticationProvider
 {
     /**
-     * @var UserProviderInterface
+     * @var ApiTokenUserProviderInterface
      */
     private $userProvider;
 
@@ -27,8 +28,20 @@ class GetApiTokenProvider extends DaoAuthenticationProvider
      */
     private $idleTime;
 
-    public function __construct(UserProviderInterface $userProvider, UserCheckerInterface $userChecker, EncoderFactoryInterface $encoderFactory, $hideUserNotFoundExceptions = true)
+    /**
+     * @var \Bukatov\ApiTokenBundle\Security\Authentication\Token\Manager\ApiTokenManagerInterface
+     */
+    private $apiTokenManager;
+
+    public function __construct(
+        ApiTokenManagerInterface $apiTokenManager,
+        UserProviderInterface $userProvider,
+        UserCheckerInterface $userChecker,
+        EncoderFactoryInterface $encoderFactory,
+        $hideUserNotFoundExceptions = true
+    )
     {
+        $this->apiTokenManager = $apiTokenManager;
         $this->userProvider = $userProvider;
         $providerKey = uniqid(time(), true);
 
@@ -37,12 +50,16 @@ class GetApiTokenProvider extends DaoAuthenticationProvider
 
     public function authenticate(TokenInterface $token)
     {
-        /* @var ApiTokenUserProviderInterface $userProvider */
-        $userProvider = $this->userProvider;
+        /* @var Token\GetApiToken $token */
+        $usernamePasswordToken = parent::authenticate($token);
 
-        $authenticatedToken = parent::authenticate($token);
+        //$apiToken = $this->userProvider->createApiToken($usernamePasswordToken->getUser(), $token->getIpAddress(), $this->lifetime, $this->idleTime);
 
-        $userProvider->createOrUpdateApiTokenForUser($authenticatedToken->getUser(), $this->lifetime, $this->idleTime);
+
+
+        //$authenticatedToken = new Token\ApiToken($usernamePasswordToken->getUser());
+
+        $authenticatedToken = $this->apiTokenManager->find();
 
         return $authenticatedToken;
     }
@@ -73,6 +90,6 @@ class GetApiTokenProvider extends DaoAuthenticationProvider
 
     public function supports(TokenInterface $token)
     {
-        return $token instanceof GetApiToken && $this->userProvider instanceof ApiTokenUserProviderInterface;
+        return $token instanceof Token\GetApiToken && $this->userProvider instanceof ApiTokenUserProviderInterface;
     }
 }

@@ -3,7 +3,7 @@ parameters:
     bukatov_api_token.security.authentication.get.provider.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\GetApiTokenProvider
 
     bukatov_api_token.security.authentication.listener.class: Bukatov\ApiTokenBundle\Security\Firewall\ApiTokenListener
-    bukatov_api_token.doctrine.orm.security.provider.class: Bukatov\ApiTokenBundle\Security\Core\User\EntityApiTokenUserProvider
+    bukatov_api_token.doctrine.orm.security.provider.class: Bukatov\ApiTokenBundle\Security\Core\User\ApiTokenUserProvider
 
     bukatov_api_token.security.authentication.token.provider.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\ApiTokenProvider
 
@@ -17,6 +17,8 @@ parameters:
     bukatov_api_token.provider.factory.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\ProviderFactory
     bukatov_api_token.user.provider.factory.class: Bukatov\ApiTokenBundle\Security\Core\User\UserProviderFactory
 
+    bukatov_api_token.manager.class: Bukatov\ApiTokenBundle\Manager\ApiTokenManager
+
 services:
     bukatov_api_token.security.authentication.get.listener:
         class: %bukatov_api_token.security.authentication.get.listener.class%
@@ -24,7 +26,7 @@ services:
 
     bukatov_api_token.security.authentication.get.provider:
         class: %bukatov_api_token.security.authentication.get.provider.class%
-        arguments: ["", @security.user_checker, @security.encoder_factory, %security.authentication.hide_user_not_found%]
+        arguments: [@bukatov_api_token.manager, "", @security.user_checker, @security.encoder_factory, %security.authentication.hide_user_not_found%]
 
     bukatov_api_token.security.authentication.listener:
         class: %bukatov_api_token.security.authentication.listener.class%
@@ -75,3 +77,7 @@ services:
     bukatov_api_token.user.provider.factory:
         class: %bukatov_api_token.user.provider.factory.class%
         arguments: ["@doctrine", %bukatov_api_token.provider.user_entity_class%]
+
+    bukatov_api_token.manager:
+        class: %bukatov_api_token.manager.class%
+        arguments: ["@doctrine"]

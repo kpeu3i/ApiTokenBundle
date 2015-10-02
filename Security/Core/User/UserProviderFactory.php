@@ -30,6 +30,6 @@ class UserProviderFactory
 
     public function createEntityApiTokenUserProvider()
     {
-        return new EntityApiTokenUserProvider($this->registry, $this->userEntityClass, $this->managerName);
+        return new ApiTokenUserProvider($this->registry, $this->userEntityClass, $this->managerName);
     }
 }

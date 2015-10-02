@@ -6,18 +6,33 @@ use Doctrine\ORM\EntityRepository;
 
 class ApiTokenRepository extends EntityRepository
 {
-    public function createOrUpdateApiToken(ApiUserInterface $user)
+    public function loadApiTokenByValue($token)
     {
-        $apiToken = $user->getApiToken();
+        $qb = $this->getEntityManager()->createQueryBuilder();
 
-        if (!$apiToken instanceof ApiToken) {
-            $apiToken = new ApiToken();
-            $apiToken->setUser($user);
-            $user->setApiToken($apiToken);
-        }
+        $qb
+            ->select('t, u')
+            ->from('BukatovApiTokenBundle:ApiToken', 't')
+            ->innerJoin('t.user', 'u')
+            ->where('t.token = :token');
 
-        $apiToken->refresh();
+        $qb->setParameter('token', $token);
 
-        return $apiToken;
+        return $qb->getQuery()->getOneOrNullResult();
     }
+
+//    public function createOrUpdateApiToken(ApiUserInterface $user)
+//    {
+//        $apiToken = $user->getApiToken();
+//
+//        if (!$apiToken instanceof ApiToken) {
+//            $apiToken = new ApiToken();
+//            $apiToken->setUser($user);
+//            $user->setApiToken($apiToken);
+//        }
+//
+//        $apiToken->refresh();
+//
+//        return $apiToken;
+//    }
 }

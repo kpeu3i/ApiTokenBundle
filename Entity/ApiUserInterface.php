@@ -2,20 +2,17 @@
 
 namespace Bukatov\ApiTokenBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 interface ApiUserInterface extends UserInterface
 {
-    /**
-     * @return null|ApiToken
-     */
-    public function getApiToken();
+    public function getApiTokens();
 
-    /**
-     * @param ApiToken $apiToken
-     *
-     * @return $this
-     */
-    public function setApiToken(ApiToken $apiToken);
+    public function setApiTokens(ArrayCollection $apiTokens);
+
+    public function addApiToken(ApiToken $apiToken);
+
+    public function removeApiToken(ApiToken $apiToken);
 }

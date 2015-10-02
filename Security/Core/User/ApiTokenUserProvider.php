@@ -3,6 +3,7 @@
 namespace Bukatov\ApiTokenBundle\Security\Core\User;
 
 use Bukatov\ApiTokenBundle\Entity;
+use Bukatov\ApiTokenBundle\Entity\ApiTokenRepository;
 use Bukatov\ApiTokenBundle\Entity\ApiUserInterface;
 use Bukatov\ApiTokenBundle\Entity\ApiUserRepositoryInterface;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -11,7 +12,7 @@ use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class EntityApiTokenUserProvider implements ApiTokenUserProviderInterface
+class ApiTokenUserProvider implements ApiTokenUserProviderInterface
 {
     /**
      * @var EntityManager
@@ -37,15 +38,15 @@ class EntityApiTokenUserProvider implements ApiTokenUserProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function loadUserByApiToken($token)
+    public function loadApiTokenByValue($token)
     {
-        $user = $this->getUserRepository()->loadUserByApiToken($token);
+        $apiToken = $this->getApiTokenRepository()->loadApiTokenByValue($token);
 
-        if (null === $user) {
-            throw new UsernameNotFoundException(sprintf('User with token "%s" not found.', $token));
+        if (!$apiToken instanceof Entity\ApiToken || !$apiToken->getUser() instanceof ApiUserInterface) {
+            throw new UsernameNotFoundException(sprintf('Token not found.', $token));
         }
 
-        return $user;
+        return $apiToken;
     }
 
     public function loadUserByUsername($username)
@@ -53,55 +54,59 @@ class EntityApiTokenUserProvider implements ApiTokenUserProviderInterface
         $user = $this->getUserRepository()->loadUserByUsername($username);
 
         if (null === $user) {
-            throw new UsernameNotFoundException(sprintf('User with username "%s" not found.', $username));
+            throw new UsernameNotFoundException(sprintf('User not found.', $username));
         }
 
         return $user;
     }
 
     /**
+     * @return ApiTokenRepository
+     */
+    protected function getApiTokenRepository()
+    {
+        return $this->em->getRepository('BukatovApiTokenBundle:ApiToken');
+    }
+
+    /**
      * @param ApiUserInterface $user
-     *
-     * @param null $lifetime
-     * @param null $idleTime
+     * @param string $ipAddress
+     * @param null|int $lifetime
+     * @param null|int $idleTime
      *
      * @return Entity\ApiToken
      */
-    public function createOrUpdateApiTokenForUser(Entity\ApiUserInterface $user, $lifetime = null, $idleTime = null)
+    public function createApiToken(Entity\ApiUserInterface $user, $ipAddress, $lifetime = null, $idleTime = null)
     {
-        /* @var Entity\ApiToken $apiToken */
-        $apiToken = $this->em->getRepository('BukatovApiTokenBundle:ApiToken')->createOrUpdateApiToken($user);
-
+        $apiToken = new Entity\ApiToken();
+        $apiToken->setToken(Entity\ApiToken::generateRandomToken($user->getSalt()));
         $apiToken->setLifetime($lifetime);
         $apiToken->setIdleTime($idleTime);
+        $apiToken->setIpAddress($ipAddress);
 
-        if (!$apiToken->getId()) {
-            $this->em->persist($apiToken);
-        }
+        $user->addApiToken($apiToken);
 
+        $this->em->persist($apiToken);
         $this->em->flush($apiToken);
 
         return $apiToken;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function refreshApiTokenLastUsedAtForUser(Entity\ApiUserInterface $user)
-    {
-        if ($apiToken = $user->getApiToken()) {
-            $apiToken->refreshLastUsedAt();
-
-            $this->em->flush($apiToken);
-        }
-
-        return $apiToken;
-    }
+//
+//    /**
+//     * {@inheritdoc}
+//     */
+//    public function refreshApiTokenLastUsedAt(Entity\ApiToken $apiToken)
+//    {
+//        $apiToken->refreshLastUsedAt();
+//        $this->em->flush($apiToken);
+//
+//        return $apiToken;
+//    }
 
     /**
      * @return ApiUserRepositoryInterface
      */
-    private function getUserRepository()
+    protected function getUserRepository()
     {
         if ($this->userRepository === null) {
             $metadata = $this->em->getClassMetadata($this->class);

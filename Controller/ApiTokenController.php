@@ -10,7 +10,9 @@ class ApiTokenController extends Controller
 {
     public function getApiTokenAction()
     {
-        $token = $this->getUser() instanceof ApiUserInterface ? (string)$this->getUser()->getApiToken() : '';
+        //$token = $this->getUser() instanceof ApiUserInterface ? (string)$this->getUser()->getApiToken() : '';
+
+        $token = (string)$this->container->get('security.token_storage')->getToken()->getApiToken();
 
         return new Response($token);
     }

@@ -2,24 +2,43 @@
 
 namespace Bukatov\ApiTokenBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 trait ApiUserTrait
 {
     /**
-     * @var ApiToken
-     * @ORM\OneToOne(targetEntity="Bukatov\ApiTokenBundle\Entity\ApiToken", mappedBy="user")
+     * @var ArrayCollection
+     * @ORM\OneToMany(targetEntity="Bukatov\ApiTokenBundle\Entity\ApiToken", mappedBy="user")
      */
-    protected $bukatovApiToken;
+    protected $apiTokens;
 
-    public function getApiToken()
+    public function getApiTokens()
     {
-        return $this->bukatovApiToken;
+        return $this->apiTokens;
     }
 
-    public function setApiToken(ApiToken $apiToken)
+    public function setApiTokens(ArrayCollection $apiTokens)
     {
-        $this->bukatovApiToken = $apiToken;
+        foreach ($apiTokens as $apiToken) {
+            $this->addApiToken($apiToken);
+        }
+
+        return $this;
+    }
+
+    public function addApiToken(ApiToken $apiToken)
+    {
+        $apiToken->setUser($this);
+
+        $this->getApiTokens()->add($apiToken);
+
+        return $this;
+    }
+
+    public function removeApiToken(ApiToken $apiToken)
+    {
+        $this->getApiTokens()->removeElement($apiToken);
 
         return $this;
     }

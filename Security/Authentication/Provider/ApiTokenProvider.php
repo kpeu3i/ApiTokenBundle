@@ -2,6 +2,7 @@
 
 namespace Bukatov\ApiTokenBundle\Security\Authentication\Provider;
 
+use Bukatov\ApiTokenBundle\Security\Authentication\Token\ApiToken;
 use Bukatov\ApiTokenBundle\Security\Core\User\ApiTokenUserProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -12,6 +13,9 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class ApiTokenProvider implements AuthenticationProviderInterface
 {
+    /**
+     * @var ApiTokenUserProviderInterface
+     */
     private $userProvider;
 
     public function __construct(UserProviderInterface $userProvider)
@@ -21,18 +25,13 @@ class ApiTokenProvider implements AuthenticationProviderInterface
 
     public function authenticate(TokenInterface $token)
     {
-        /* @var ApiTokenUserProviderInterface $userProvider */
-        $userProvider = $this->userProvider;
+        /* @var ApiToken $token */
+        $apiToken = $this->userProvider->loadApiTokenByValue($token->getUser());
+        $user = $apiToken->getUser();
 
-        $apiTokenHash = $token->getUser();
-        $user = $userProvider->loadUserByApiToken($apiTokenHash);
-        $apiToken = $user ? $user->getApiToken() : null;
-
-        if ($apiToken && $apiToken->isValid()) {
-            $authenticatedToken = new Token\ApiToken($user, $user->getRoles());
-            $authenticatedToken->setAuthenticated(true);
-
-            $userProvider->refreshApiTokenLastUsedAtForUser($user);
+        if ($apiToken && $apiToken->isValid($token->getIpAddress())) {
+            $authenticatedToken = new Token\ApiToken($user, $user->getRoles(), $apiToken);
+            //$this->userProvider->refreshApiTokenLastUsedAt($apiToken);
 
             return $authenticatedToken;
         }

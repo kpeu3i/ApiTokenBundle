@@ -63,6 +63,8 @@ class GetApiTokenListener implements ListenerInterface
     public function handle(GetResponseEvent $event)
     {
         $request = $event->getRequest();
+
+        $ipAddress = $request->getClientIp();
         $username = $this->parameterFetcher->fetch($request, $this->usernameParameter);
         $password = $this->parameterFetcher->fetch($request, $this->passwordParameter);
 
@@ -71,6 +73,7 @@ class GetApiTokenListener implements ListenerInterface
         }
 
         $token = new GetApiToken($username, $password);
+        $token->setIpAddress($ipAddress);
 
         try {
             $authToken = $this->authenticationManager->authenticate($token);

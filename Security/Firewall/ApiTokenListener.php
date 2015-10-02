@@ -44,6 +44,8 @@ class ApiTokenListener implements ListenerInterface
     public function handle(GetResponseEvent $event)
     {
         $request = $event->getRequest();
+
+        $ipAddress = $request->getClientIp();
         $token = $this->parameterFetcher->fetch($request, $this->tokenName);
 
         if ($token === null) {
@@ -51,11 +53,12 @@ class ApiTokenListener implements ListenerInterface
         }
 
         $apiToken = new Token\ApiToken($token);
+        $apiToken->setIpAddress($ipAddress);
 
         try {
             $authToken = $this->authenticationManager->authenticate($apiToken);
             $this->tokenStorage->setToken($authToken);
-        } catch (AuthenticationException $failed) {
+        } catch (AuthenticationException $e) {
             $response = new Response();
             $response->setStatusCode(Response::HTTP_FORBIDDEN);
             $response->setContent('Authentication failed');
