@@ -2,7 +2,7 @@
 
 namespace Bukatov\ApiTokenBundle\Controller;
 
-use Bukatov\ApiTokenBundle\Entity\ApiUserInterface;
+use Bukatov\ApiTokenBundle\Security\Core\User\ApiUserInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 

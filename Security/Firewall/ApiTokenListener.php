@@ -52,7 +52,7 @@ class ApiTokenListener implements ListenerInterface
             return;
         }
 
-        $apiToken = new Token\ApiToken($token);
+        $apiToken = new Token\Token($token);
         $apiToken->setIpAddress($ipAddress);
 
         try {

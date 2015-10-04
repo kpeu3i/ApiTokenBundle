@@ -17,7 +17,9 @@ parameters:
     bukatov_api_token.provider.factory.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\ProviderFactory
     bukatov_api_token.user.provider.factory.class: Bukatov\ApiTokenBundle\Security\Core\User\UserProviderFactory
 
-    bukatov_api_token.manager.class: Bukatov\ApiTokenBundle\Manager\ApiTokenManager
+
+    bukatov_api_token.storage.sql.class: Bukatov\ApiTokenBundle\ApiToken\Storage\SqlApiTokenStorage
+    bukatov_api_token.manager.class: Bukatov\ApiTokenBundle\ApiToken\Manager\ApiTokenManager
 
 services:
     bukatov_api_token.security.authentication.get.listener:
@@ -38,7 +40,7 @@ services:
 
     bukatov_api_token.security.authentication.token.provider:
         class: %bukatov_api_token.security.authentication.token.provider.class%
-        arguments: [""]
+        arguments: ["@bukatov_api_token.manager", ""]
 
     bukatov_api_token.fetcher.headers:
         class: %bukatov_api_token.fetcher.headers.class%
@@ -78,6 +80,11 @@ services:
         class: %bukatov_api_token.user.provider.factory.class%
         arguments: ["@doctrine", %bukatov_api_token.provider.user_entity_class%]
 
+
+    bukatov_api_token.storage.sql:
+        class: %bukatov_api_token.storage.sql.class%
+        arguments: [@database_connection, "api_token"]
+
     bukatov_api_token.manager:
         class: %bukatov_api_token.manager.class%
-        arguments: ["@doctrine"]
+        arguments: ["@bukatov_api_token.storage.sql"]

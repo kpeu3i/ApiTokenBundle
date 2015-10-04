@@ -17,7 +17,7 @@ class ApiTokenFactory implements SecurityFactoryInterface
         $providerId = 'bukatov_api_token.security.authentication.token.provider.' . $id;
         $container
             ->setDefinition($providerId, new DefinitionDecorator('bukatov_api_token.security.authentication.token.provider'))
-            ->replaceArgument(0, new Reference($userProvider));
+            ->replaceArgument(1, new Reference($userProvider));
 
         $resolvedParameterFetcherId = 'bukatov_api_token.fetcher.' . $id;
         $container

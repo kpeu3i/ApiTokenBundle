@@ -2,8 +2,10 @@
 
 namespace Bukatov\ApiTokenBundle\Security\Authentication\Provider;
 
-use Bukatov\ApiTokenBundle\Security\Authentication\Token\Manager\ApiTokenManagerInterface;
-use Bukatov\ApiTokenBundle\Security\Authentication\Token;
+use Bukatov\ApiTokenBundle\ApiToken\ApiToken;
+use Bukatov\ApiTokenBundle\ApiToken\Manager\ApiTokenManagerInterface;
+use Bukatov\ApiTokenBundle\Security\Authentication\Token\GetApiToken;
+use Bukatov\ApiTokenBundle\Security\Authentication\Token\Token;
 use Bukatov\ApiTokenBundle\Security\Core\User\ApiTokenUserProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -29,9 +31,9 @@ class GetApiTokenProvider extends DaoAuthenticationProvider
     private $idleTime;
 
     /**
-     * @var \Bukatov\ApiTokenBundle\Security\Authentication\Token\Manager\ApiTokenManagerInterface
+     * @var ApiTokenManagerInterface
      */
-    private $apiTokenManager;
+    protected $apiTokenManager;
 
     public function __construct(
         ApiTokenManagerInterface $apiTokenManager,
@@ -50,16 +52,20 @@ class GetApiTokenProvider extends DaoAuthenticationProvider
 
     public function authenticate(TokenInterface $token)
     {
-        /* @var Token\GetApiToken $token */
+        /* @var GetApiToken $token */
         $usernamePasswordToken = parent::authenticate($token);
 
-        //$apiToken = $this->userProvider->createApiToken($usernamePasswordToken->getUser(), $token->getIpAddress(), $this->lifetime, $this->idleTime);
+        $apiToken = new ApiToken();
+        $apiToken
+            ->setToken('22222222222')
+            ->setUsername($usernamePasswordToken->getUser()->getUsername())
+            ->setIpAddress($token->getIpAddress())
+            ->init()
+            ;
 
+        $this->apiTokenManager->save($apiToken);
 
-
-        //$authenticatedToken = new Token\ApiToken($usernamePasswordToken->getUser());
-
-        $authenticatedToken = $this->apiTokenManager->find();
+        $authenticatedToken = new Token($usernamePasswordToken->getUser(), $apiToken);
 
         return $authenticatedToken;
     }
@@ -90,6 +96,6 @@ class GetApiTokenProvider extends DaoAuthenticationProvider
 
     public function supports(TokenInterface $token)
     {
-        return $token instanceof Token\GetApiToken && $this->userProvider instanceof ApiTokenUserProviderInterface;
+        return $token instanceof GetApiToken && $this->userProvider instanceof ApiTokenUserProviderInterface;
     }
 }

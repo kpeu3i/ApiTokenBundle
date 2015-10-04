@@ -1,7 +1,8 @@
 <?php
 
-namespace Bukatov\ApiTokenBundle\Entity;
+namespace Bukatov\ApiTokenBundle\Security\Core\User;
 
+use Bukatov\ApiTokenBundle\Entity\ApiToken;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;

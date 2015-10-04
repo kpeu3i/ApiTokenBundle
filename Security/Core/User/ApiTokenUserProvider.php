@@ -4,7 +4,7 @@ namespace Bukatov\ApiTokenBundle\Security\Core\User;
 
 use Bukatov\ApiTokenBundle\Entity;
 use Bukatov\ApiTokenBundle\Entity\ApiTokenRepository;
-use Bukatov\ApiTokenBundle\Entity\ApiUserInterface;
+use Bukatov\ApiTokenBundle\Security\Core\User\ApiUserInterface;
 use Bukatov\ApiTokenBundle\Entity\ApiUserRepositoryInterface;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManager;
@@ -76,7 +76,7 @@ class ApiTokenUserProvider implements ApiTokenUserProviderInterface
      *
      * @return Entity\ApiToken
      */
-    public function createApiToken(Entity\ApiUserInterface $user, $ipAddress, $lifetime = null, $idleTime = null)
+    public function createApiToken(\Bukatov\ApiTokenBundle\Security\Core\User\ApiUserInterface $user, $ipAddress, $lifetime = null, $idleTime = null)
     {
         $apiToken = new Entity\ApiToken();
         $apiToken->setToken(Entity\ApiToken::generateRandomToken($user->getSalt()));

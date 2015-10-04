@@ -38,7 +38,7 @@ doctrine:
     orm:
         # ...
         resolve_target_entities:
-            Bukatov\ApiTokenBundle\Entity\ApiUserInterface: Company\YourBundle\Entity\User
+            Bukatov\ApiTokenBundle\Security\Core\User\ApiUserInterface: Company\YourBundle\Entity\User
 
 # ...
 
@@ -66,7 +66,7 @@ User entity:
 
 namespace Company\YourBundle\Entity;
 
-use Bukatov\ApiTokenBundle\Entity\ApiUserInterface;
+use Bukatov\ApiTokenBundle\Security\Core\User\ApiUserInterface;
 use Bukatov\ApiTokenBundle\Entity\ApiUserTrait;
 
 /**

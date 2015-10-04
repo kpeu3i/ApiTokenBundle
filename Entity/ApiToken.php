@@ -2,6 +2,7 @@
 
 namespace Bukatov\ApiTokenBundle\Entity;
 
+use Bukatov\ApiTokenBundle\Security\Core\User\ApiUserInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
