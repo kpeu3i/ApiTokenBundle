@@ -4,7 +4,7 @@ namespace Bukatov\ApiTokenBundle\Security\Authentication\Token;
 
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
-class GetApiToken extends UsernamePasswordToken
+class LoginToken extends UsernamePasswordToken
 {
     /**
      * @var string

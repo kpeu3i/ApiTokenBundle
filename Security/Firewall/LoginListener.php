@@ -2,8 +2,8 @@
 
 namespace Bukatov\ApiTokenBundle\Security\Firewall;
 
-use Bukatov\ApiTokenBundle\ParameterFetcher\ParameterFetcherInterface;
-use Bukatov\ApiTokenBundle\Security\Authentication\Token\GetApiToken;
+use Bukatov\ApiTokenBundle\RequestParamFetcher\RequestParamFetcherInterface;
+use Bukatov\ApiTokenBundle\Security\Authentication\Token\LoginToken;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Firewall\ListenerInterface;
 
-class GetApiTokenListener implements ListenerInterface
+class LoginListener implements ListenerInterface
 {
     /**
      * @var TokenStorageInterface
@@ -24,19 +24,19 @@ class GetApiTokenListener implements ListenerInterface
     protected $authenticationManager;
 
     /**
-     * @var ParameterFetcherInterface
+     * @var RequestParamFetcherInterface
      */
     protected $parameterFetcher;
 
     /**
      * @var
      */
-    protected $usernameParameter;
+    protected $deliveryUsernameParameter;
 
     /**
      * @var
      */
-    protected $passwordParameter;
+    protected $deliveryPasswordParameter;
 
     /**
      * @var
@@ -47,17 +47,17 @@ class GetApiTokenListener implements ListenerInterface
         TokenStorageInterface $tokenStorage,
         AuthenticationManagerInterface $authenticationManager,
         $providerKey,
-        ParameterFetcherInterface $parameterFetcher,
-        $usernameParameter,
-        $passwordParameter
+        RequestParamFetcherInterface $parameterFetcher,
+        $deliveryUsernameParameter,
+        $deliveryPasswordParameter
     )
     {
         $this->tokenStorage = $tokenStorage;
         $this->authenticationManager = $authenticationManager;
         $this->providerKey = $providerKey;
         $this->parameterFetcher = $parameterFetcher;
-        $this->usernameParameter = $usernameParameter;
-        $this->passwordParameter = $passwordParameter;
+        $this->deliveryUsernameParameter = $deliveryUsernameParameter;
+        $this->deliveryPasswordParameter = $deliveryPasswordParameter;
     }
 
     public function handle(GetResponseEvent $event)
@@ -65,14 +65,14 @@ class GetApiTokenListener implements ListenerInterface
         $request = $event->getRequest();
 
         $ipAddress = $request->getClientIp();
-        $username = $this->parameterFetcher->fetch($request, $this->usernameParameter);
-        $password = $this->parameterFetcher->fetch($request, $this->passwordParameter);
+        $username = $this->parameterFetcher->fetch($request, $this->deliveryUsernameParameter);
+        $password = $this->parameterFetcher->fetch($request, $this->deliveryPasswordParameter);
 
         if ($username === null) {
             return;
         }
 
-        $token = new GetApiToken($username, $password);
+        $token = new LoginToken($username, $password);
         $token->setIpAddress($ipAddress);
 
         try {
@@ -84,5 +84,21 @@ class GetApiTokenListener implements ListenerInterface
             $response->setContent($e->getMessage());
             $event->setResponse($response);
         }
+    }
+
+    /**
+     * @param string $deliveryUsernameParameter
+     */
+    public function setDeliveryUsernameParameter($deliveryUsernameParameter)
+    {
+        $this->deliveryUsernameParameter = $deliveryUsernameParameter;
+    }
+
+    /**
+     * @param string $deliveryPasswordParameter
+     */
+    public function setDeliveryPasswordParameter($deliveryPasswordParameter)
+    {
+        $this->deliveryPasswordParameter = $deliveryPasswordParameter;
     }
 }

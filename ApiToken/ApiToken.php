@@ -4,18 +4,47 @@ namespace Bukatov\ApiTokenBundle\ApiToken;
 
 class ApiToken implements ApiTokenInterface
 {
+    /**
+     * @var string
+     */
     protected $token;
-    protected $username;
-    protected $createdAt;
-    protected $lastUsedAt;
-    protected $ipAddress;
 
-    protected $initialized = false;
-    protected $locked = false;
+    /**
+     * @var string
+     */
+    protected $username;
+
+    /**
+     * @var \DateTime
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime
+     */
+    protected $lastUsedAt;
+
+    /**
+     * @var \DateTime
+     */
+    protected $expiresAt;
+
+    /**
+     * @var string
+     */
+    protected $ipAddress;
 
     public function __construct()
     {
-        $this->createdAt = new \DateTime();
+        $now = new \DateTime();
+
+        $this->createdAt = $now;
+        $this->lastUsedAt = clone $now;
+    }
+
+    public function __toString()
+    {
+        return (string)$this->token;
     }
 
     /**
@@ -53,7 +82,7 @@ class ApiToken implements ApiTokenInterface
      */
     public function setUsername($username)
     {
-        $this->set('username',  $username);
+        $this->set('username', $username);
 
         return $this;
     }
@@ -99,6 +128,36 @@ class ApiToken implements ApiTokenInterface
     }
 
     /**
+     * @return $this
+     */
+    public function refreshLastUsedAt()
+    {
+        $this->set('lastUsedAt', new \DateTime());
+
+        return $this;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getExpiresAt()
+    {
+        return $this->expiresAt;
+    }
+
+    /**
+     * @param \DateTime $expiresAt
+     *
+     * @return \DateTime
+     */
+    public function setExpiresAt(\DateTime $expiresAt)
+    {
+        $this->set('expiresAt', $expiresAt);
+
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getIpAddress()
@@ -118,52 +177,8 @@ class ApiToken implements ApiTokenInterface
         return $this;
     }
 
-    public function isInitialized()
-    {
-        return $this->initialized;
-    }
-
     protected function set($property, $value)
     {
-        if ($this->locked) {
-            throw new \RuntimeException('ApiToken is already locked');
-        }
-
         $this->{$property} = $value;
-    }
-
-    public function init()
-    {
-        if ($this->initialized) {
-            throw new \RuntimeException('ApiToken is already initialized');
-        }
-
-        $this->initialized = true;
-        $this->locked = true;
-    }
-
-    public function toArray()
-    {
-        $data = [];
-        foreach ($this->getSupportedProperties() as $property) {
-            $data[$property] = $this->{$property};
-        }
-
-        return $data;
-    }
-
-    public static function fromArray(array $data)
-    {
-        $apiToken = new self();
-        foreach ($apiToken->getSupportedProperties() as $property) {
-            $data[$property] = $apiToken->{$property};
-        }
-
-        return $apiToken;
-    }
-
-    protected function getSupportedProperties()
-    {
-        return ['token', 'username', 'createdAt', 'lastUsedAt', 'ipAddress'];
     }
 }

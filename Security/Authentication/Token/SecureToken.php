@@ -6,7 +6,7 @@ use Bukatov\ApiTokenBundle\ApiToken\ApiTokenInterface;
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class Token extends AbstractToken
+class SecureToken extends AbstractToken
 {
     /**
      * @var ApiTokenInterface
@@ -15,10 +15,6 @@ class Token extends AbstractToken
 
     public function __construct(UserInterface $user, ApiTokenInterface $apiToken)
     {
-        if (!$apiToken->isInitialized()) {
-            throw new \RuntimeException('ApiToken was not initialized');
-        }
-
         $this->apiToken = $apiToken;
 
         parent::__construct($user->getRoles());

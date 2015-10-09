@@ -3,12 +3,24 @@
 namespace Bukatov\ApiTokenBundle\ApiToken\Manager;
 
 use Bukatov\ApiTokenBundle\ApiToken\ApiTokenInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 interface ApiTokenManagerInterface
 {
-    public function findByToken($key);
+    /**
+     * @param UserInterface $user
+     * @param string $ipAddress
+     * @param int $absoluteLifetime
+     *
+     * @return ApiTokenInterface
+     */
+    public function create(UserInterface $user, $ipAddress, $absoluteLifetime = 0);
 
-    public function save(ApiTokenInterface $token, $ttl = 0);
+    public function find($key);
 
-    public function deleteByToken($token);
+    public function save($key, ApiTokenInterface $token, $inactiveLifetime = 0);
+
+    public function delete($key);
+
+    public function isValid(ApiTokenInterface $apiToken);
 }

@@ -1,61 +1,59 @@
 parameters:
-    bukatov_api_token.security.authentication.get.listener.class: Bukatov\ApiTokenBundle\Security\Firewall\GetApiTokenListener
-    bukatov_api_token.security.authentication.get.provider.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\GetApiTokenProvider
+    bukatov_api_token.security.authentication.listener.login.class: Bukatov\ApiTokenBundle\Security\Firewall\LoginListener
+    bukatov_api_token.security.authentication.provider.login.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\LoginProvider
 
-    bukatov_api_token.security.authentication.listener.class: Bukatov\ApiTokenBundle\Security\Firewall\ApiTokenListener
-    bukatov_api_token.doctrine.orm.security.provider.class: Bukatov\ApiTokenBundle\Security\Core\User\ApiTokenUserProvider
+    bukatov_api_token.security.authentication.listener.secure.class: Bukatov\ApiTokenBundle\Security\Firewall\SecureListener
+    bukatov_api_token.security.authentication.provider.secure.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\SecureProvider
 
-    bukatov_api_token.security.authentication.token.provider.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\ApiTokenProvider
-
-    bukatov_api_token.fetcher.headers.class: Bukatov\ApiTokenBundle\ParameterFetcher\HeadersParameterFetcher
-    bukatov_api_token.fetcher.query_string.class: Bukatov\ApiTokenBundle\ParameterFetcher\QueryStringParameterFetcher
-    bukatov_api_token.fetcher.post_body.class: Bukatov\ApiTokenBundle\ParameterFetcher\PostBodyParameterFetcher
-    bukatov_api_token.fetcher.json_post_body.class: Bukatov\ApiTokenBundle\ParameterFetcher\JsonPostBodyParameterFetcher
+    bukatov_api_token.request_param_fetcher.headers.class: Bukatov\ApiTokenBundle\RequestParamFetcher\HeadersRequestParamFetcher
+    bukatov_api_token.request_param_fetcher.query_string.class: Bukatov\ApiTokenBundle\RequestParamFetcher\QueryStringParamFetcher
+    bukatov_api_token.request_param_fetcher.post_body.class: Bukatov\ApiTokenBundle\RequestParamFetcher\PostBodyRequestParamFetcher
+    bukatov_api_token.request_param_fetcher.json_post_body.class: Bukatov\ApiTokenBundle\RequestParamFetcher\JsonPostBodyRequestParamFetcher
 
     bukatov_api_token.security.authentication.manager.class: Bukatov\ApiTokenBundle\Security\Core\AuthenticationManager
 
-    bukatov_api_token.provider.factory.class: Bukatov\ApiTokenBundle\Security\Authentication\Provider\ProviderFactory
-    bukatov_api_token.user.provider.factory.class: Bukatov\ApiTokenBundle\Security\Core\User\UserProviderFactory
-
-
     bukatov_api_token.storage.sql.class: Bukatov\ApiTokenBundle\ApiToken\Storage\SqlApiTokenStorage
+    bukatov_api_token.storage.sql.table_name: api_token
+
+    bukatov_api_token.storage.apc.class: Bukatov\ApiTokenBundle\ApiToken\Storage\ApcApiTokenStorage
     bukatov_api_token.manager.class: Bukatov\ApiTokenBundle\ApiToken\Manager\ApiTokenManager
 
 services:
-    bukatov_api_token.security.authentication.get.listener:
-        class: %bukatov_api_token.security.authentication.get.listener.class%
-        arguments: ["@security.token_storage", "@security.authentication.manager", "", "", "", ""]
+    bukatov_api_token.security.authentication.listener.login:
+        class: %bukatov_api_token.security.authentication.listener.login.class%
+        arguments: [@security.token_storage, @security.authentication.manager, "", "", "", ""]
 
-    bukatov_api_token.security.authentication.get.provider:
-        class: %bukatov_api_token.security.authentication.get.provider.class%
+    bukatov_api_token.security.authentication.provider.login:
+        class: %bukatov_api_token.security.authentication.provider.login.class%
         arguments: [@bukatov_api_token.manager, "", @security.user_checker, @security.encoder_factory, %security.authentication.hide_user_not_found%]
+        calls:
+            - [setTokenAbsoluteLifetime, [%bukatov_api_token.lifetime.absolute%]]
+            - [setTokenInactiveLifetime, [%bukatov_api_token.lifetime.inactive%]]
 
-    bukatov_api_token.security.authentication.listener:
-        class: %bukatov_api_token.security.authentication.listener.class%
+    bukatov_api_token.security.authentication.listener.secure:
+        class: %bukatov_api_token.security.authentication.listener.secure.class%
         arguments: ["@security.token_storage", "@security.authentication.manager", "", ""]
 
-    bukatov_api_token.doctrine.orm.security.provider:
-        class: %bukatov_api_token.doctrine.orm.security.provider.class%
-        arguments: ["@doctrine", "", ""]
-
-    bukatov_api_token.security.authentication.token.provider:
-        class: %bukatov_api_token.security.authentication.token.provider.class%
+    bukatov_api_token.security.authentication.provider.secure:
+        class: %bukatov_api_token.security.authentication.provider.secure.class%
         arguments: ["@bukatov_api_token.manager", ""]
+        calls:
+            - [setTokenInactiveLifetime, [%bukatov_api_token.lifetime.inactive%]]
 
-    bukatov_api_token.fetcher.headers:
-        class: %bukatov_api_token.fetcher.headers.class%
+    bukatov_api_token.request_param_fetcher.headers:
+        class: %bukatov_api_token.request_param_fetcher.headers.class%
         public: false
 
-    bukatov_api_token.fetcher.query_string:
-        class: %bukatov_api_token.fetcher.query_string.class%
+    bukatov_api_token.request_param_fetcher.query_string:
+        class: %bukatov_api_token.request_param_fetcher.query_string.class%
         public: false
 
-    bukatov_api_token.fetcher.post_body:
-        class: %bukatov_api_token.fetcher.post_body.class%
+    bukatov_api_token.request_param_fetcher.post_body:
+        class: %bukatov_api_token.request_param_fetcher.post_body.class%
         public: false
 
-    bukatov_api_token.fetcher.json_post_body:
-        class: %bukatov_api_token.fetcher.json_post_body.class%
+    bukatov_api_token.request_param_fetcher.json_post_body:
+        class: %bukatov_api_token.request_param_fetcher.json_post_body.class%
         public: false
 
     bukatov_api_token.security.authentication.manager:
@@ -66,25 +64,13 @@ services:
             - [setTokenStorage, [@security.token_storage]]
             - [setEventDispatcher, [@event_dispatcher]]
 
-    bukatov_api_token.provider.factory:
-        class: %bukatov_api_token.provider.factory.class%
-        arguments:
-            - @security.user_checker
-            - @security.encoder_factory
-            - @bukatov_api_token.user.provider.factory
-            - %security.authentication.hide_user_not_found%
-            - %bukatov_api_token.token.lifetime%
-            - %bukatov_api_token.token.idle_time%
-
-    bukatov_api_token.user.provider.factory:
-        class: %bukatov_api_token.user.provider.factory.class%
-        arguments: ["@doctrine", %bukatov_api_token.provider.user_entity_class%]
-
+    bukatov_api_token.manager:
+        class: %bukatov_api_token.manager.class%
+        arguments: [""]
 
     bukatov_api_token.storage.sql:
         class: %bukatov_api_token.storage.sql.class%
-        arguments: [@database_connection, "api_token"]
+        arguments: [@database_connection, %bukatov_api_token.storage.sql.table_name%]
 
-    bukatov_api_token.manager:
-        class: %bukatov_api_token.manager.class%
-        arguments: ["@bukatov_api_token.storage.sql"]
+    bukatov_api_token.storage.apc:
+        class: %bukatov_api_token.storage.apc.class%

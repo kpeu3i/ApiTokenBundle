@@ -4,6 +4,7 @@ namespace Bukatov\ApiTokenBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
 
@@ -22,19 +23,13 @@ class BukatovApiTokenExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $container->setParameter('bukatov_api_token.provider.user_entity_class', $config['provider']['user_entity_class']);
-
-        $container->setParameter('bukatov_api_token.token.lifetime', $config['token']['lifetime']);
-        $container->setParameter('bukatov_api_token.token.idle_time', $config['token']['idle_time']);
-
-        $container->setParameter('bukatov_api_token.transport.on_login_area.type', $config['transport']['on_login_area']['type']);
-        $container->setParameter('bukatov_api_token.transport.on_login_area.username_parameter', $config['transport']['on_login_area']['username_parameter']);
-        $container->setParameter('bukatov_api_token.transport.on_login_area.password_parameter', $config['transport']['on_login_area']['password_parameter']);
-
-        $container->setParameter('bukatov_api_token.transport.on_secure_area.type', $config['transport']['on_secure_area']['type']);
-        $container->setParameter('bukatov_api_token.transport.on_secure_area.parameter', $config['transport']['on_secure_area']['parameter']);
+        $container->setParameter('bukatov_api_token.lifetime.absolute', $config['lifetime']['absolute']);
+        $container->setParameter('bukatov_api_token.lifetime.inactive', $config['lifetime']['inactive']);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yml');
+
+        $managerDefinition = $container->getDefinition('bukatov_api_token.manager');
+        $managerDefinition->replaceArgument(0, new Reference('bukatov_api_token.storage.' . $config['storage']));
     }
 }

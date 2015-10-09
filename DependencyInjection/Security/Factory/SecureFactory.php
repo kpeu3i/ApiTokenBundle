@@ -8,26 +8,23 @@ use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\SecurityFactoryInterface;
 
-class ApiTokenFactory implements SecurityFactoryInterface
+class SecureFactory implements SecurityFactoryInterface
 {
     public function create(ContainerBuilder $container, $id, $config, $userProvider, $defaultEntryPoint)
     {
-        $transportParameter = isset($config['transport']['parameter']) ? $config['transport']['parameter'] : '%bukatov_api_token.transport.on_secure_area.parameter%';
-
-        $providerId = 'bukatov_api_token.security.authentication.token.provider.' . $id;
+        $providerId = 'bukatov_api_token.security.authentication.provider.secure.' . $id;
         $container
-            ->setDefinition($providerId, new DefinitionDecorator('bukatov_api_token.security.authentication.token.provider'))
-            ->replaceArgument(1, new Reference($userProvider));
+            ->setDefinition($providerId, new DefinitionDecorator('bukatov_api_token.security.authentication.provider.secure'))
+            ->replaceArgument(1, new Reference($userProvider))
+            ;
 
-        $resolvedParameterFetcherId = 'bukatov_api_token.fetcher.' . $id;
-        $container
-            ->setDefinition($resolvedParameterFetcherId, new DefinitionDecorator('bukatov_api_token.fetcher.' . $config['transport']['type']));
-
+        $resolvedParameterFetcherId = 'bukatov_api_token.request_param_fetcher.' . $config['delivery']['type'];
         $listenerId = 'security.authentication.listener.bukatov_api_token.' . $id;
         $container
-            ->setDefinition($listenerId, new DefinitionDecorator('bukatov_api_token.security.authentication.listener'))
+            ->setDefinition($listenerId, new DefinitionDecorator('bukatov_api_token.security.authentication.listener.secure'))
             ->replaceArgument(2, new Reference($resolvedParameterFetcherId))
-            ->replaceArgument(3, $transportParameter);
+            ->addMethodCall('setDeliveryTokenParameter', [$config['delivery']['token_parameter']])
+            ;
 
         return [$providerId, $listenerId, $defaultEntryPoint];
     }
@@ -35,9 +32,8 @@ class ApiTokenFactory implements SecurityFactoryInterface
     public function addConfiguration(NodeDefinition $node)
     {
         $node
-            ->addDefaultsIfNotSet()
             ->children()
-                ->arrayNode('transport')
+                ->arrayNode('delivery')
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('type')
@@ -47,8 +43,8 @@ class ApiTokenFactory implements SecurityFactoryInterface
                                 ->thenInvalid('Unsupported transport type "%s"')
                              ->end()
                         ->end()
-                        ->scalarNode('parameter')
-                            ->defaultNull()
+                        ->scalarNode('token_parameter')
+                            ->defaultValue('X-Api-Token')
                         ->end()
                     ->end()
                 ->end()

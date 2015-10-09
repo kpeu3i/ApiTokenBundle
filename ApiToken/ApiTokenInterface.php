@@ -53,6 +53,23 @@ interface ApiTokenInterface
     public function setLastUsedAt(\DateTime $lastUsedAt);
 
     /**
+     * @return $this
+     */
+    public function refreshLastUsedAt();
+
+    /**
+     * @return \DateTime
+     */
+    public function getExpiresAt();
+
+    /**
+     * @param \DateTime $expiresAt
+     *
+     * @return \DateTime
+     */
+    public function setExpiresAt(\DateTime $expiresAt);
+
+    /**
      * @return string
      */
     public function getIpAddress();
@@ -63,9 +80,4 @@ interface ApiTokenInterface
      * @return $this
      */
     public function setIpAddress($ipAddress);
-
-    /**
-     * @return bool
-     */
-    public function isInitialized();
 }

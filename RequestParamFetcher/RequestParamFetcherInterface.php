@@ -1,10 +1,10 @@
 <?php
 
-namespace Bukatov\ApiTokenBundle\ParameterFetcher;
+namespace Bukatov\ApiTokenBundle\RequestParamFetcher;
 
 use Symfony\Component\HttpFoundation\Request;
 
-interface ParameterFetcherInterface
+interface RequestParamFetcherInterface
 {
     public function fetch(Request $request, $name);
 }

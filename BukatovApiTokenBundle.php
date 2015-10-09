@@ -2,9 +2,8 @@
 
 namespace Bukatov\ApiTokenBundle;
 
-use Bukatov\ApiTokenBundle\DependencyInjection\Security\Factory\ApiTokenFactory;
-use Bukatov\ApiTokenBundle\DependencyInjection\Security\Factory\ApiUserEntityFactory;
-use Bukatov\ApiTokenBundle\DependencyInjection\Security\Factory\GetApiTokenFactory;
+use Bukatov\ApiTokenBundle\DependencyInjection\Security\Factory\SecureFactory;
+use Bukatov\ApiTokenBundle\DependencyInjection\Security\Factory\LoginFactory;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -15,9 +14,7 @@ class BukatovApiTokenBundle extends Bundle
         parent::build($container);
 
         $extension = $container->getExtension('security');
-        $extension->addSecurityListenerFactory(new ApiTokenFactory());
-        $extension->addSecurityListenerFactory(new GetApiTokenFactory());
-
-        $extension->addUserProviderFactory(new ApiUserEntityFactory('api_token_user_entity', 'bukatov_api_token.doctrine.orm.security.provider'));
+        $extension->addSecurityListenerFactory(new SecureFactory());
+        $extension->addSecurityListenerFactory(new LoginFactory());
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Bukatov\ApiTokenBundle\ApiToken\Storage;
 
-use Bukatov\ApiTokenBundle\ApiToken\ApiToken;
 use Bukatov\ApiTokenBundle\ApiToken\ApiTokenInterface;
 use Doctrine\DBAL\Connection;
 
@@ -24,21 +23,43 @@ class SqlApiTokenStorage implements ApiTokenStorageInterface
         $this->tableName = $tableName;
     }
 
-    public function get($token)
+    public function get($key)
     {
-        $result = $this->connection->fetchAssoc(sprintf('SELECT * FROM %s WHERE token = :token', $this->tableName), ['token' => $token]);
-        $data = $result ? json_decode($result, true) : null;
+        $sql = sprintf('SELECT * FROM %s WHERE `key` = :key AND `expires_at` > :current_date_time', $this->tableName);
 
-        return $data ? ApiToken::fromArray($data) : null;
+        $currentDateTime = new \DateTime();
+
+        $params = [
+            'key' => $key,
+            'current_date_time' => $currentDateTime->format('Y-m-d H:i:s')
+        ];
+
+        $result = $this->connection->fetchAssoc($sql, $params);
+
+        $apiToken = isset($result['value']) ? unserialize($result['value']) : null;
+        $apiToken = $apiToken instanceof ApiTokenInterface ? $apiToken : null;
+
+        return $apiToken;
     }
 
-    public function set(ApiTokenInterface $token, $ttl = 0)
+    public function set($key, ApiTokenInterface $token, $lifetime = 0)
     {
-        $this->connection->insert($this->tableName, ['token' => $token->getToken(), 'data' => json_encode($token->toArray())]);
+        $sql = sprintf('INSERT INTO %s (`key`, `value`, expires_at) VALUES (:key, :value, :expires_at) ON DUPLICATE KEY UPDATE `key` = :key, `expires_at` = :expires_at', $this->tableName);
+
+        $expiresAt = new \DateTime();
+        $expiresAt->add(\DateInterval::createFromDateString(sprintf('%s seconds', intval($lifetime))));
+
+        $params = [
+            'key' => $key,
+            'value' => serialize($token),
+            'expires_at' => $expiresAt->format('Y-m-d H:i:s')
+        ];
+
+        $this->connection->executeQuery($sql, $params);
     }
 
-    public function delete($token)
+    public function delete($key)
     {
-        $this->connection->delete($this->tableName, ['token' => $token]);
+        $this->connection->delete($this->tableName, ['key' => $key]);
     }
 }
