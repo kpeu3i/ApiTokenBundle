@@ -16,12 +16,9 @@ class ApiTokenController extends Controller
 
     public function invalidateApiTokenAction()
     {
-        if ($apiToken = $this->getUser()->getApiToken()) {
-            $em = $this->getDoctrine()->getManager();
+        $token = (string)$this->container->get('security.token_storage')->getToken()->getApiToken();
 
-            $em->remove($apiToken);
-            $em->flush($apiToken);
-        }
+        $this->get('bukatov_api_token.manager')->delete($token);
 
         return new Response();
     }

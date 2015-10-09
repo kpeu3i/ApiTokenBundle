@@ -60,6 +60,6 @@ class SqlApiTokenStorage implements ApiTokenStorageInterface
 
     public function delete($key)
     {
-        $this->connection->delete($this->tableName, ['key' => $key]);
+        $this->connection->delete($this->tableName, ['`key`' => $key]);
     }
 }
