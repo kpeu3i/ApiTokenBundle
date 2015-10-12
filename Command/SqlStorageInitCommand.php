@@ -6,13 +6,13 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class InitSqlStorageCommand extends ContainerAwareCommand
+class SqlStorageInitCommand extends ContainerAwareCommand
 {
 
     protected function configure()
     {
         $this
-            ->setName('api-token:init-sql-storage')
+            ->setName('api-token:storage:sql:init')
             ->setDescription('Creates table in database')
         ;
     }
@@ -35,7 +35,7 @@ SQL;
         $stmt = $connection->prepare(sprintf($sql, $tableName));
 
         if ($stmt->execute()) {
-            $output->writeln(sprintf('<info>Table "%s" successfully created</info>', $tableName));
+            $output->writeln(sprintf('<info>Done! Table "%s" successfully created</info>', $tableName));
         } else {
             $output->writeln(sprintf('<error>Error while creating table "%s"</error>', $tableName));
         }
